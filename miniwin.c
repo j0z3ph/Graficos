@@ -4,6 +4,7 @@
  * @brief Traduccion a C de MiniWin. Un mini-conjunto de funciones para abrir una ventana, pintar en
  *    ella y detectar la presión de algunas teclas. Básicamente para hacer
  *    juegos sencillos.
+ *    Basado en el trabajo de Pau Fernández.
  * @version 0.1
  * @date 2023-12-09
  *
@@ -46,6 +47,11 @@ static bool _bot_izq, _bot_der; // botones izquierdo y derecho
 // queue constants
 static int *queue = NULL;
 static int q_cont = 0;
+
+// second queue
+static int *queue2 = NULL;
+static int q_cont2 = 0;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -102,6 +108,65 @@ static int q_pop()
 static bool q_empty()
 {
    if (q_cont > 0)
+      return false;
+   else
+      return true;
+}
+
+
+
+static void q_push2(int val)
+{
+   q_cont2++;
+   if (queue2 == NULL)
+   {
+      queue2 = (int *)malloc(q_cont2 * sizeof(int));
+   }
+   else
+   {
+      queue2 = (int *)realloc(queue2, q_cont2 * sizeof(int));
+   }
+   queue2[q_cont2 - 1] = val;
+}
+
+static int q_front2()
+{
+   if (queue2 != NULL && q_cont2 != 0)
+   {
+      return queue2[q_cont2 - 1];
+   }
+   else
+   {
+      return -1;
+   }
+}
+
+static int q_pop2()
+{
+   int tmp;
+   if (queue2 != NULL && q_cont2 > 1)
+   {
+      q_cont2--;
+      tmp = queue2[q_cont2];
+      queue2 = (int *)realloc(queue2, q_cont2 * sizeof(int));
+   }
+   else if (queue2 != NULL)
+   {
+      q_cont2--;
+      tmp = queue2[q_cont2];
+      free(queue2);
+      queue2 = NULL;
+   }
+   else
+   {
+      tmp = -1;
+   }
+   return tmp;
+}
+
+static bool q_empty2()
+{
+   if (q_cont2 > 0)
       return false;
    else
       return true;
@@ -345,6 +410,43 @@ static LRESULT CALLBACK WindowProcedure(HWND hWnd,
 
       break;
    }
+   case WM_KEYUP:
+   {
+      bool push_it = false;
+
+      // Escape
+      push_it |= (wParam == VK_ESCAPE);
+
+      // Flechas
+      push_it |= (wParam == VK_LEFT ||
+                  wParam == VK_RIGHT ||
+                  wParam == VK_UP ||
+                  wParam == VK_DOWN);
+
+      // Barra espaciadora
+      push_it |= (wParam == VK_SPACE);
+
+      push_it |= (wParam == VK_RETURN);
+
+      // N�meros 0-9
+      push_it |= (wParam >= 48 && wParam <= 57);
+
+      // Letras A-Z
+      push_it |= (wParam >= 65 && wParam <= 90);
+
+      // Teclas de funci�n
+      for (unsigned int i = 0; i < 10; i++)
+      {
+         push_it |= (wParam == (VK_F1 + i));
+      }
+
+      if (push_it)
+         q_push2(wParam);
+
+      break;
+   }
+   
+   
    case WM_DESTROY:
    {
       DeleteObject(hBitmap);
@@ -432,6 +534,81 @@ int tecla()
    q_pop();
    return ret;
 }
+
+
+int teclaDown()
+{
+   return tecla();
+}
+
+int teclaUp()
+{
+   if (q_empty2())
+      return NINGUNA;
+
+   int ret = NINGUNA;
+   switch (q_front2())
+   {
+   case VK_LEFT:
+      ret = IZQUIERDA;
+      break;
+   case VK_RIGHT:
+      ret = DERECHA;
+      break;
+   case VK_UP:
+      ret = ARRIBA;
+      break;
+   case VK_DOWN:
+      ret = ABAJO;
+      break;
+   case VK_ESCAPE:
+      ret = ESCAPE;
+      break;
+   case VK_SPACE:
+      ret = ESPACIO;
+      break;
+   case VK_RETURN:
+      ret = RETURN;
+      break;
+   case VK_F1:
+      ret = F1;
+      break;
+   case VK_F2:
+      ret = F2;
+      break;
+   case VK_F3:
+      ret = F3;
+      break;
+   case VK_F4:
+      ret = F4;
+      break;
+   case VK_F5:
+      ret = F5;
+      break;
+   case VK_F6:
+      ret = F6;
+      break;
+   case VK_F7:
+      ret = F7;
+      break;
+   case VK_F8:
+      ret = F8;
+      break;
+   case VK_F9:
+      ret = F9;
+      break;
+   case VK_F10:
+      ret = F10;
+      break;
+   default:
+      ret = q_front2();
+   }
+   q_pop2();
+   return ret;
+}
+
+
+
 
 bool raton(float *x, float *y)
 {

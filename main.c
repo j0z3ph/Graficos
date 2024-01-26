@@ -10,70 +10,64 @@
  */
 #include<stdio.h>
 #include"miniwin.h"
+#define GRAVITY 1
+#define ANCHO 800
+#define ALTO 600
+#define JUMP -20
 
 int main()
 {
-    int t;
+    int t, aceleracion = 0;
+    bool i_presionada = false;
+    bool d_presionada = false;
     float x = 150, y = 150;
-    vventana(800,600);
+    vventana(ANCHO,ALTO);
     vtitulo("Mi Primer Juego");
 
     t = tecla();
     while(t != ESCAPE) {
+
+        y+= aceleracion;
+        aceleracion += GRAVITY;
+        if(y + 50 > ALTO) y = ALTO-50;
+        if(i_presionada) x-=10;
+        if(x < 0) x = 0;
+        if(d_presionada) x+=10;
+        if(x+50 > ANCHO) x = ANCHO - 50;
+
         borra();
         color(BLANCO);
         //texto(20,20,"Presione ESC para salir");
         textoExt(20,20,"Presione ESC para salir", 50, false, false, true, "Arial");
-        
+        texto(50,150, "Hola");
 
 
-        color_rgb(200, 10, 100);
-        linea(100,100, 400,100);
         color(VERDE);
-        rectangulo(x,y, x+200,y+200);
+        rectangulo_lleno(x,y,x+50,y+50);
 
-        rectangulo_lleno(x+50,y+50,x+150,y+150);
-
-        color(MAGENTA);
-        circulo(x+100,y+100,30);
-
-        circulo_lleno(x+100,y+100,20);
-
-        color(NEGRO);
-        punto(x+100,y+100);
-
-
-        // mouse
-        if(raton_dentro()) {
-            raton(&x, &y);
-            if(raton_boton_izq()) {
-                //mensaje("Click");
-                if(pregunta("Estas bien?")) {
-                    mensaje("Perfecto");
-                } else{
-                    mensaje("No estes triste");
-                }
-            }
-            if(raton_boton_der()) {
-                mensajeT("Click secundario", "Raton en accion");
-            }
-        }
 
         refresca();
-        t = tecla();
+        t = teclaDown();
 
         if(t == IZQUIERDA) {
-            x-=10;
+            i_presionada = true;
         }
         if(t == DERECHA) {
-            x+=10;
+            d_presionada = true;
         }
-        if(t == ARRIBA) {
-            y-=10;
+        if(t == ESPACIO) {
+            aceleracion=JUMP;
         }
-        if(t == ABAJO) {
-            y+=10;
+
+        t = teclaUp();
+        if(t == IZQUIERDA) {
+            i_presionada = false;
         }
+        if(t == DERECHA) {
+            d_presionada = false;
+        }
+        
+        
         espera(1);
     }
     vcierra();

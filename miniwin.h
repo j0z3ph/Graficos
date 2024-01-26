@@ -4,6 +4,7 @@
  * @brief Traduccion a C de MiniWin. Un mini-conjunto de funciones para abrir una ventana, pintar en
  *    ella y detectar la presión de algunas teclas. Básicamente para hacer
  *    juegos sencillos.
+ *    Basado en el trabajo de Pau Fernández.
  * @version 0.1
  * @date 2023-12-09
  *
@@ -40,6 +41,19 @@ int _main_();
  */
 void textoExt(float x, float y, const char *texto, int tamanioFuente,
                bool italica, bool negrita, bool subrayada, const char *fuente);
+
+/**
+ * @brief Permite determinar si se solto una tecla.
+ * 
+ * @return int Codigo de la tecla que se solto.
+ */
+int teclaUp();
+/**
+ * @brief Permite determinar si se presiono una tecla.
+ * 
+ * @return int Codigo de la tecla presionada.
+ */
+int teclaDown();
 
 /**
  * @brief Permite abrir una ventana del tamanio especificado.
