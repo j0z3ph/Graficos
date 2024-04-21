@@ -30,36 +30,36 @@ int _main_();
 
 typedef struct MiniWinImage
 {
-  /**
-   * @brief La ruta original de donde se cargo la imagen.
-   *
-   */
-  char ruta[256];
-  /**
-   * @brief Imagen en memoria. Se requiere para mostrarla en pantalla.
-   * 
-   */
-  HGDIOBJ hBitmap;
-  /**
-   * @brief Posicion en X donde se mostrara la imagen en pantalla.
-   * 
-   */
-  int pos_x;
-  /**
-   * @brief Posicion en Y donde se mostrara la imagen en pantalla.
-   * 
-   */
-  int pos_y;
-  /**
-   * @brief Ancho de la imagen.
-   * 
-   */
-  long ancho;
-  /**
-   * @brief Alto de la imagen.
-   * 
-   */
-  long alto;
+	/**
+	 * @brief La ruta original de donde se cargo la imagen.
+	 *
+	 */
+	char ruta[256];
+	/**
+	 * @brief Imagen en memoria. Se requiere para mostrarla en pantalla.
+	 *
+	 */
+	HGDIOBJ hBitmap;
+	/**
+	 * @brief Posicion en X donde se mostrara la imagen en pantalla.
+	 *
+	 */
+	int pos_x;
+	/**
+	 * @brief Posicion en Y donde se mostrara la imagen en pantalla.
+	 *
+	 */
+	int pos_y;
+	/**
+	 * @brief Ancho de la imagen.
+	 *
+	 */
+	long ancho;
+	/**
+	 * @brief Alto de la imagen.
+	 *
+	 */
+	long alto;
 } MWImage;
 
 /**
@@ -114,7 +114,7 @@ void muestraImagen(MWImage imagen);
  * @param fuente Nombre de la fuente a usar.
  */
 void textoExt(float x, float y, const char *texto, int tamanioFuente,
-              bool italica, bool negrita, bool subrayada, const char *fuente);
+			  bool italica, bool negrita, bool subrayada, const char *fuente);
 
 /**
  * @brief Permite determinar si se solto una tecla.
@@ -139,7 +139,7 @@ void vventana(int ancho, int alto);
 
 /**
  * @brief Limpia el contenido de la ventana.
- * El color del fondo de la ventana se manda a negro.
+ * El color del fondo de la ventana se manda al color del fondo.
  *
  */
 void borra();
@@ -383,36 +383,36 @@ bool raton_boton_der();
 
 enum
 {
-  ESCAPE,
-  IZQUIERDA,
-  DERECHA,
-  ARRIBA,
-  ABAJO,
-  F1,
-  F2,
-  F3,
-  F4,
-  F5,
-  F6,
-  F7,
-  F8,
-  F9,
-  F10,
-  ESPACIO,
-  RETURN,
-  NINGUNA
+	ESCAPE,
+	IZQUIERDA,
+	DERECHA,
+	ARRIBA,
+	ABAJO,
+	F1,
+	F2,
+	F3,
+	F4,
+	F5,
+	F6,
+	F7,
+	F8,
+	F9,
+	F10,
+	ESPACIO,
+	RETURN,
+	NINGUNA
 };
 
 enum
 {
-  NEGRO,
-  ROJO,
-  VERDE,
-  AZUL,
-  AMARILLO,
-  MAGENTA,
-  CYAN,
-  BLANCO
+	NEGRO,
+	ROJO,
+	VERDE,
+	AZUL,
+	AMARILLO,
+	MAGENTA,
+	CYAN,
+	BLANCO
 };
 
 #endif
