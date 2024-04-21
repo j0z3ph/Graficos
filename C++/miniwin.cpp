@@ -1,7 +1,7 @@
 /**
  * @file miniwin.c
  * @author Jose Luis Cruz (jlcruz@ipn.mx)
- * @brief Traduccion a C de MiniWin. Un mini-conjunto de funciones para abrir una ventana, pintar en
+ * @brief Un mini-conjunto de funciones para abrir una ventana, pintar en
  *    ella y detectar la presión de algunas teclas. Básicamente para hacer
  *    juegos sencillos.
  *    Basado en el trabajo de Pau Fernández.
@@ -13,6 +13,9 @@
  *    juegos sencillos.
  *
  *  (c) Pau Fernández, licencia MIT: http://es.wikipedia.org/wiki/MIT_License
+ * 
+ * Git original: https://github.com/pauek/MiniWin
+ * Git: https://github.com/j0z3ph/Miniwin
  */
 
 #if defined(_WIN32)
@@ -22,7 +25,7 @@
 #include <fstream>
 #include <sstream>
 #include <queue>
-#include <math.h>
+#include <cmath>
 #include <process.h>
 #include <windows.h>
 #include <windowsx.h>

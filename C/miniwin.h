@@ -13,6 +13,9 @@
  *    juegos sencillos.
  *
  *  (c) Pau Fernández, licencia MIT: http://es.wikipedia.org/wiki/MIT_License
+ * 
+ * Git original: https://github.com/pauek/MiniWin
+ * Git: https://github.com/j0z3ph/Miniwin
  */
 
 #ifndef _MINIWIN_H_

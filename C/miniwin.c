@@ -13,6 +13,10 @@
  *    juegos sencillos.
  *
  *  (c) Pau Fernández, licencia MIT: http://es.wikipedia.org/wiki/MIT_License
+ * 
+ * 
+ * Git original: https://github.com/pauek/MiniWin
+ * Git: https://github.com/j0z3ph/Miniwin
  */
 
 #if defined(_WIN32)
@@ -55,6 +59,7 @@ static int q_cont2 = 0;
 ////////////////////////////////////////////////////////////////////////////////
 
 // QUEUE FUNCTIONS ////
+// Alguien que arregle esto!! //
 static void q_push(int val)
 {
 	q_cont++;
