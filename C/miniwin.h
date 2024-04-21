@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <windows.h>
 
 #ifndef MINIWIN_SOURCE
 #define main _main_ // Super-cutre hack! (pero funciona)
@@ -27,42 +28,114 @@
 
 int _main_();
 
+typedef struct MiniWinImage
+{
+  /**
+   * @brief La ruta original de donde se cargo la imagen.
+   *
+   */
+  char ruta[256];
+  /**
+   * @brief Imagen en memoria. Se requiere para mostrarla en pantalla.
+   * 
+   */
+  HGDIOBJ hBitmap;
+  /**
+   * @brief Posicion en X donde se mostrara la imagen en pantalla.
+   * 
+   */
+  int pos_x;
+  /**
+   * @brief Posicion en Y donde se mostrara la imagen en pantalla.
+   * 
+   */
+  int pos_y;
+  /**
+   * @brief Ancho de la imagen.
+   * 
+   */
+  long ancho;
+  /**
+   * @brief Alto de la imagen.
+   * 
+   */
+  long alto;
+} MWImage;
+
+/**
+ * @brief Permite cambiar el color de fondo de la ventana.
+ *
+ * @param c Nuevo color de alguno de los enumeradores.
+ */
+void color_fondo(int c);
+
+/**
+ * @brief Permite cambiar el color de fondo de la ventana.
+ *
+ * @param r Rojo (0-255)
+ * @param g Verde (0-255)
+ * @param b Azul (0-255)
+ */
+void color_fondo_rgb(int r, int g, int b);
+
+/**
+ * @brief Permite crear una imagen BMP.
+ * NOTA: No se aceptan imagenes de otro formato.
+ *
+ * @param ruta Ruta de la imagen a cargar.
+ * @return MWImage Representacion de la imagen.
+ */
+MWImage creaImagenBMP(const char *ruta);
+
+/**
+ * @brief Permite eliminar una imagen creada.
+ *
+ * @param imagen La imagen a eliminar.
+ */
+void eliminaImagen(MWImage imagen);
+
+/**
+ * @brief Muestra la imagen en pantalla.
+ *
+ * @param imagen La imagen en mostrar.
+ */
+void muestraImagen(MWImage imagen);
+
 /**
  * @brief Permite imprimir un texto en pantalla.
- * 
+ *
  * @param x Posicion en X
  * @param y Posicion en Y
  * @param texto Texto a mostrar
- * @param tamanioFuente Tamanio de la fuente 
+ * @param tamanioFuente Tamanio de la fuente
  * @param italica True para mostrar en italica. False para mostrar normal.
  * @param negrita True para mostrar en negrita. False para mostrar normal.
  * @param subrayada True para mostrar texto subrayado. False para mostrar normal.
  * @param fuente Nombre de la fuente a usar.
  */
 void textoExt(float x, float y, const char *texto, int tamanioFuente,
-               bool italica, bool negrita, bool subrayada, const char *fuente);
+              bool italica, bool negrita, bool subrayada, const char *fuente);
 
 /**
  * @brief Permite determinar si se solto una tecla.
- * 
+ *
  * @return int Codigo de la tecla que se solto.
  */
 int teclaUp();
 /**
  * @brief Permite determinar si se presiono una tecla.
- * 
+ *
  * @return int Codigo de la tecla presionada.
  */
 int teclaDown();
 
 /**
  * @brief Permite abrir una ventana del tamanio especificado.
- * 
+ *
  * @param ancho Ancho de la ventana
  * @param alto Alto de la ventana
  */
 void vventana(int ancho, int alto);
-
 
 /**
  * @brief Limpia el contenido de la ventana.

@@ -34,13 +34,13 @@ static LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
 
 static char szClassName[] = "MiniWin";
 
-// Variables globales //////////////////////////////////////////////////////////
+// Variables globales >~< (ya se, ya se) //////////////////////////////////////////////////////////
 
-static HWND hWnd;         // ventana principal
-static HBITMAP hBitmap;   // bitmap para pintar off-screen
-static int iWidth = 400;  // ancho de la ventana
-static int iHeight = 300; // alto de la ventana
-static HDC hDCMem = NULL; // Device Context en memoria
+static HWND hWnd;               // ventana principal
+static HBITMAP hBitmap;         // bitmap para pintar off-screen
+static int iWidth = 400;        // ancho de la ventana
+static int iHeight = 300;       // alto de la ventana
+static HDC hDCMem = NULL;       // Device Context en memoria
 static bool _raton_dentro;      // el raton est� dentro del 'client area'
 static int _xraton, _yraton;    // posicion del raton
 static bool _bot_izq, _bot_der; // botones izquierdo y derecho
@@ -51,7 +51,6 @@ static int q_cont = 0;
 // second queue
 static int *queue2 = NULL;
 static int q_cont2 = 0;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -112,8 +111,6 @@ static bool q_empty()
    else
       return true;
 }
-
-
 
 static void q_push2(int val)
 {
@@ -445,8 +442,7 @@ static LRESULT CALLBACK WindowProcedure(HWND hWnd,
 
       break;
    }
-   
-   
+
    case WM_DESTROY:
    {
       DeleteObject(hBitmap);
@@ -467,7 +463,8 @@ static LRESULT CALLBACK WindowProcedure(HWND hWnd,
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-COLORREF _color = RGB(255, 255, 255);
+static COLORREF _color = RGB(255, 255, 255);
+static COLORREF _back_color = RGB(255, 255, 255);
 
 int tecla()
 {
@@ -534,7 +531,6 @@ int tecla()
    q_pop();
    return ret;
 }
-
 
 int teclaDown()
 {
@@ -607,9 +603,6 @@ int teclaUp()
    return ret;
 }
 
-
-
-
 bool raton(float *x, float *y)
 {
    if (!_raton_dentro)
@@ -681,7 +674,7 @@ void borra()
 {
    RECT R;
    SetRect(&R, 0, 0, iWidth, iHeight);
-   HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 0));
+   HBRUSH hBrush = CreateSolidBrush(_back_color);
    FillRect(hDCMem, &R, hBrush);
    DeleteObject(hBrush);
 }
@@ -776,13 +769,15 @@ void texto(float x, float y, const char *texto)
 }
 
 void textoExt(float x, float y, const char *texto, int tamanioFuente,
-               bool italica, bool negrita, bool subrayada, const char *fuente) {
+              bool italica, bool negrita, bool subrayada, const char *fuente)
+{
    HFONT hf, hforiginal;
    int peso = FW_NORMAL;
    long lfHeight;
    lfHeight = -MulDiv(tamanioFuente, GetDeviceCaps(hDCMem, LOGPIXELSY), 72);
 
-   if(negrita) peso = FW_BOLD;
+   if (negrita)
+      peso = FW_BOLD;
    hf = CreateFont(tamanioFuente, 0, 0, 0, peso, italica, subrayada, 0, 0, 0, 0, 0, 0, fuente);
    hforiginal = (HFONT)SelectObject(hDCMem, hf);
    SetTextColor(hDCMem, _color);
@@ -791,6 +786,45 @@ void textoExt(float x, float y, const char *texto, int tamanioFuente,
    DeleteObject(hf);
 }
 
+MWImage creaImagenBMP(const char *ruta)
+{
+   MWImage image;
+   BITMAP bitmap;
+   image.ruta[0] = 0;
+   image.alto = 0;
+   image.ancho = 0;
+   image.hBitmap = (HBITMAP)LoadImageA(NULL, ruta, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+   if (image.hBitmap != NULL)
+   {
+      strcpy(image.ruta, ruta);
+      GetObject(image.hBitmap, sizeof(bitmap), &bitmap);
+      image.ancho = bitmap.bmWidth;
+      image.alto = bitmap.bmHeight;
+   }
+   image.pos_x = 0;
+   image.pos_y = 0;
+   return image;
+}
+
+void eliminaImagen(MWImage imagen)
+{
+   DeleteObject(imagen.hBitmap);
+}
+
+void muestraImagen(MWImage imagen)
+{
+   HGDIOBJ oldBitmap;
+   HDC imagehdc = CreateCompatibleDC(NULL);
+
+   if (imagen.hBitmap != NULL)
+   {
+      oldBitmap = SelectObject(imagehdc, imagen.hBitmap);
+      BitBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc, 0, 0, SRCCOPY);
+      SelectObject(imagehdc, oldBitmap);
+      DeleteObject(imagehdc);
+      DeleteObject(oldBitmap);
+   }
+}
 
 static COLORREF _colores[] = {
     RGB(0, 0, 0),       // NEGRO
@@ -813,9 +847,30 @@ void color(int c)
 
 void color_rgb(int r, int g, int b)
 {
-   _color = RGB(r < 0 ? 0 : r > 255 ? 255 : r,
-                g < 0 ? 0 : g > 255 ? 255 : g,
-                b < 0 ? 0 : b > 255 ? 255 : b);
+   _color = RGB(r < 0 ? 0 : r > 255 ? 255
+                                    : r,
+                g < 0 ? 0 : g > 255 ? 255
+                                    : g,
+                b < 0 ? 0 : b > 255 ? 255
+                                    : b);
+}
+
+void color_fondo(int c)
+{
+   if (c >= 0 && c <= 7)
+      _back_color = _colores[c];
+   else
+      _back_color = _colores[0];
+}
+
+void color_fondo_rgb(int r, int g, int b)
+{
+   _back_color = RGB(r < 0 ? 0 : r > 255 ? 255
+                                         : r,
+                     g < 0 ? 0 : g > 255 ? 255
+                                         : g,
+                     b < 0 ? 0 : b > 255 ? 255
+                                         : b);
 }
 
 int vancho()
@@ -838,7 +893,8 @@ void vredimensiona(int ancho, int alto)
    newMemDC(w, h);
 }
 
-void vventana(int ancho, int alto) {
+void vventana(int ancho, int alto)
+{
    vredimensiona(ancho, alto);
 }
 
