@@ -1,6 +1,6 @@
 /**
  * @file miniwin.h
- * @author Jose Luis Cruz (jlcruz@ipn.mx)
+ * @author Jose Luis Cruz (j0z3ph@gmail.com)
  * @brief Traduccion a C de MiniWin. Un mini-conjunto de funciones para abrir una ventana, pintar en
  *    ella y detectar la presión de algunas teclas. Básicamente para hacer
  *    juegos sencillos.
