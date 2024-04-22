@@ -13,8 +13,8 @@
  *    juegos sencillos.
  *
  *  (c) Pau Fernández, licencia MIT: http://es.wikipedia.org/wiki/MIT_License
- * 
- * 
+ *
+ *
  * Git original: https://github.com/pauek/MiniWin
  * Git: https://github.com/j0z3ph/Miniwin
  */
@@ -808,24 +808,107 @@ MWImage creaImagenBMP(const char *ruta)
 	}
 	image.pos_x = 0;
 	image.pos_y = 0;
+	image.hBitmap_mask = NULL;
+	image.ruta_mask[0] = '\0';
+	return image;
+}
+
+MWImage creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask)
+{
+	MWImage image;
+	BITMAP bitmap;
+	image.ruta[0] = 0;
+	image.ruta_mask[0] = 0;
+	image.alto = 0;
+	image.ancho = 0;
+	image.hBitmap = (HBITMAP)LoadImageA(NULL, ruta, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	if (image.hBitmap != NULL)
+	{
+		strcpy(image.ruta, ruta);
+		GetObject(image.hBitmap, sizeof(bitmap), &bitmap);
+		image.ancho = bitmap.bmWidth;
+		image.alto = bitmap.bmHeight;
+	}
+	image.pos_x = 0;
+	image.pos_y = 0;
+
+	image.hBitmap_mask = (HBITMAP)LoadImageA(NULL, ruta_mask, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	if (image.hBitmap != NULL)
+	{
+		strcpy(image.ruta_mask, ruta_mask);
+	}
+
 	return image;
 }
 
 void eliminaImagen(MWImage imagen)
 {
 	DeleteObject(imagen.hBitmap);
+	DeleteObject(imagen.hBitmap_mask);
+}
+
+void __muestraImagen(MWImage imagen)
+{
+	HGDIOBJ oldBitmap;
+	HDC imagehdc = CreateCompatibleDC(NULL);
+	HDC imagehdc_mask = CreateCompatibleDC(NULL);
+
+	if (imagen.hBitmap_mask != NULL)
+	{
+		oldBitmap = SelectObject(imagehdc_mask, imagen.hBitmap_mask);
+		BitBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc_mask, 0, 0, SRCAND);
+		SelectObject(imagehdc_mask, oldBitmap);
+		DeleteObject(imagehdc_mask);
+		DeleteObject(oldBitmap);
+		if (imagen.hBitmap != NULL)
+		{
+			oldBitmap = SelectObject(imagehdc, imagen.hBitmap);
+			BitBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc, 0, 0, SRCPAINT);
+			SelectObject(imagehdc, oldBitmap);
+			DeleteObject(imagehdc);
+			DeleteObject(oldBitmap);
+		}
+	}
+	else if (imagen.hBitmap != NULL)
+	{
+		oldBitmap = SelectObject(imagehdc, imagen.hBitmap);
+		BitBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc, 0, 0, SRCCOPY);
+		SelectObject(imagehdc, oldBitmap);
+		DeleteObject(imagehdc);
+		DeleteObject(oldBitmap);
+	}
 }
 
 void muestraImagen(MWImage imagen)
 {
 	HGDIOBJ oldBitmap;
+	BITMAP bitmap;
 	HDC imagehdc = CreateCompatibleDC(NULL);
+	HDC imagehdc_mask = CreateCompatibleDC(NULL);
 
-	if (imagen.hBitmap != NULL)
+	if (imagen.hBitmap_mask != NULL)
 	{
+		GetObject(imagen.hBitmap_mask, sizeof(bitmap), &bitmap);
+		oldBitmap = SelectObject(imagehdc_mask, imagen.hBitmap_mask);
+		StretchBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc_mask, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
+        SelectObject(imagehdc_mask, oldBitmap);
+		DeleteObject(imagehdc_mask);
+		DeleteObject(oldBitmap);
+		if (imagen.hBitmap != NULL)
+		{
+			oldBitmap = SelectObject(imagehdc, imagen.hBitmap);
+			StretchBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT);
+            SelectObject(imagehdc, oldBitmap);
+			DeleteObject(imagehdc);
+			DeleteObject(oldBitmap);
+		}
+	}
+	else if (imagen.hBitmap != NULL)
+	{
+		GetObject(imagen.hBitmap, sizeof(bitmap), &bitmap);
 		oldBitmap = SelectObject(imagehdc, imagen.hBitmap);
-		BitBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc, 0, 0, SRCCOPY);
-		SelectObject(imagehdc, oldBitmap);
+		StretchBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+        SelectObject(imagehdc, oldBitmap);
 		DeleteObject(imagehdc);
 		DeleteObject(oldBitmap);
 	}

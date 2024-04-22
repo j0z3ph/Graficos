@@ -13,7 +13,7 @@
  *    juegos sencillos.
  *
  *  (c) Pau Fernández, licencia MIT: http://es.wikipedia.org/wiki/MIT_License
- * 
+ *
  * Git original: https://github.com/pauek/MiniWin
  * Git: https://github.com/j0z3ph/Miniwin
  */
@@ -44,65 +44,102 @@ namespace miniwin
 		int _pos_x;
 		int _pos_y;
 		HGDIOBJ _hBitmap;
+		HGDIOBJ _hBitmapMask;
 		std::string _ruta;
+		std::string _ruta_mask;
 
 	public:
 		/**
 		 * @brief Crea una imagen de MiniWin
 		 *
-		 * @param ruta La ruta de la imagen. El archivo debe ser <b>BMP</b>	
+		 * @param ruta La ruta de la imagen. El archivo debe ser <b>BMP</b>
 		 */
 		MiniWinImage(std::string ruta) throw(const char *);
+		/**
+		 * @brief Crea una imagen de MiniWin
+		 *
+		 * @param ruta La ruta de la imagen. El archivo debe ser <b>BMP</b>
+		 * @param ruta_mask La ruta de la mascara. El archivo debe ser <b>BMP</b> y del mismo tamanio
+		 * que la imagen.
+		 */
+		MiniWinImage(std::string ruta, std::string ruta_mask) throw(const char *);
+
 		~MiniWinImage();
 
 		/**
 		 * @brief Devuelve el mapa de bits.
-		 * 
+		 *
 		 * @return HGDIOBJ Mapa de bits.
 		 */
 		HGDIOBJ bitmap();
+		/**
+		 * @brief Devuelve el mapa de bits de la mascara.
+		 *
+		 * @return HGDIOBJ Mapa de bits
+		 */
+		HGDIOBJ bitmap_mask();
 
 		/**
 		 * @brief Establece la posicion en X de la imagen.
-		 * 
+		 *
 		 * @param x Coordanda en X de la pantalla.
 		 */
 		void posX(int x);
 		/**
 		 * @brief Establece la posicion en Y de la imagen.
-		 * 
+		 *
 		 * @param y Coordenada en Y de la pantalla.
 		 */
 		void posY(int y);
 		/**
 		 * @brief Obtiene la posicion en X de la imagen.
-		 * 
+		 *
 		 * @return int Coordenada en X de la pantalla.
 		 */
 		int posX();
 		/**
 		 * @brief Obtiene la posicion en Y de la imagen.
-		 * 
+		 *
 		 * @return int Coordenada en Y de la pantalla.
 		 */
 		int posY();
 
 		/**
 		 * @brief Obtiene el ancho en pixeles de la imagen.
-		 * 
+		 *
 		 * @return long Ancho.
 		 */
 		long ancho();
 		/**
 		 * @brief Obtiene el alto en pixeles de la imagen.
-		 * 
+		 *
 		 * @return long Alto.
 		 */
 		long alto();
 
 		/**
-		 * @brief Obtiene la ruta de la imagen.
+		 * @brief Permite establecer el ancho de la imagen.
+		 *
+		 * @param ancho Nuevo ancho.
+		 */
+		void ancho(long ancho)
+		{
+			this->_ancho = ancho;
+		}
+
+		/**
+		 * @brief Permite establecer el alto de la imagen.
 		 * 
+		 * @param alto Nuevo alto.
+		 */
+		void alto(long alto)
+		{
+			this->_alto = alto;
+		}
+
+		/**
+		 * @brief Obtiene la ruta de la imagen.
+		 *
 		 * @return std::string Ruta de la imagen.
 		 */
 		std::string ruta();

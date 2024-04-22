@@ -23,14 +23,17 @@ int main()
     bool i_presionada = false;
     bool d_presionada = false;
     float x = 150, y = 150;
-    MiniWinImage hongo(".\\hongo.bmp");
+    MiniWinImage hongo(".\\hongo.bmp", ".\\hongomask.bmp");
     hongo.posX(150);
     hongo.posY(150);
+
+    hongo.alto(50);
+    hongo.ancho(50);
 
     vventana(ANCHO, ALTO);
     vtitulo("Mi Primer Juego");
 
-    color_fondo(BLANCO);
+    color_fondo(ROJO);
 
     t = tecla();
     while (t != ESCAPE)

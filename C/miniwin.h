@@ -39,10 +39,20 @@ typedef struct MiniWinImage
 	 */
 	char ruta[256];
 	/**
+	 * @brief La ruta original de donde se cargo la mascara.
+	 * 
+	 */
+	char ruta_mask[256];
+	/**
 	 * @brief Imagen en memoria. Se requiere para mostrarla en pantalla.
 	 *
 	 */
 	HGDIOBJ hBitmap;
+	/**
+	 * @brief Mascara en memoria. Se requiere para mostarla en pantalla.
+	 * 
+	 */
+	HGDIOBJ hBitmap_mask;
 	/**
 	 * @brief Posicion en X donde se mostrara la imagen en pantalla.
 	 *
@@ -91,6 +101,16 @@ void color_fondo_rgb(int r, int g, int b);
 MWImage creaImagenBMP(const char *ruta);
 
 /**
+ * @brief Permite crear una imagen BMP.
+ * NOTA: No se aceptan imagenes de otro formato.
+ * 
+ * @param ruta Ruta de la imagen a cargar.
+ * @param ruta_mask Ruta de la mascara. Debe ser del mismo tamanio.
+ * @return MWImage Representacion de la imagen.
+ */
+MWImage creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask);
+
+/**
  * @brief Permite eliminar una imagen creada.
  *
  * @param imagen La imagen a eliminar.
@@ -103,6 +123,15 @@ void eliminaImagen(MWImage imagen);
  * @param imagen La imagen en mostrar.
  */
 void muestraImagen(MWImage imagen);
+
+/**
+ * @brief Muestra una imagen en pantalla a la escala deseada.
+ * 
+ * @param imagen Imagen a mostrar.
+ * @param ancho Ancho deseado.
+ * @param alto Alto deseado.
+ */
+//void muestraImagenEscalada(MWImage imagen, int ancho, int alto);
 
 /**
  * @brief Permite imprimir un texto en pantalla.

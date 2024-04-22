@@ -13,7 +13,7 @@
  *    juegos sencillos.
  *
  *  (c) Pau Fernández, licencia MIT: http://es.wikipedia.org/wiki/MIT_License
- * 
+ *
  * Git original: https://github.com/pauek/MiniWin
  * Git: https://github.com/j0z3ph/Miniwin
  */
@@ -382,16 +382,50 @@ namespace miniwin
         this->_pos_y = 0;
         this->_alto = bitmap.bmHeight;
         this->_ancho = bitmap.bmWidth;
+
+        this->_hBitmapMask = NULL;
+        this->_ruta_mask = "";
+    }
+
+    MiniWinImage::MiniWinImage(std::string ruta, std::string ruta_mask) throw(const char *)
+    {
+        BITMAP bitmap;
+
+        this->_hBitmap = (HBITMAP)LoadImageA(NULL, ruta.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        if (this->_hBitmap == NULL)
+        {
+            throw "No fue posible cargar la imagen.";
+        }
+        GetObject(this->_hBitmap, sizeof(bitmap), &bitmap);
+        this->_ruta = ruta;
+        this->_pos_x = 0;
+        this->_pos_y = 0;
+        this->_alto = bitmap.bmHeight;
+        this->_ancho = bitmap.bmWidth;
+
+        // mask
+        this->_hBitmapMask = (HBITMAP)LoadImageA(NULL, ruta_mask.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        if (this->_hBitmapMask == NULL)
+        {
+            throw "No fue posible cargar la mascara.";
+        }
+        this->_ruta_mask = ruta_mask;
     }
 
     MiniWinImage::~MiniWinImage()
     {
         DeleteObject(this->_hBitmap);
+        DeleteObject(this->_hBitmapMask);
     }
 
     HGDIOBJ MiniWinImage::bitmap()
     {
         return this->_hBitmap;
+    }
+
+    HGDIOBJ MiniWinImage::bitmap_mask()
+    {
+        return this->_hBitmapMask;
     }
 
     void MiniWinImage::posX(int x)
@@ -749,12 +783,34 @@ namespace miniwin
     void muestraImagen(MiniWinImage &imagen)
     {
         HGDIOBJ oldBitmap;
+        BITMAP bitmap;
         HDC imagehdc = CreateCompatibleDC(NULL);
+        HDC imagehdc_mask = CreateCompatibleDC(NULL);
 
-        if (imagen.bitmap() != NULL)
+        if (imagen.bitmap_mask() != NULL)
         {
+            GetObject(imagen.bitmap_mask(), sizeof(bitmap), &bitmap);
+
+            oldBitmap = SelectObject(imagehdc_mask, imagen.bitmap_mask());
+            StretchBlt(hDCMem, imagen.posX(), imagen.posY(), imagen.ancho(), imagen.alto(), imagehdc_mask, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
+            SelectObject(imagehdc_mask, oldBitmap);
+            DeleteObject(imagehdc_mask);
+            DeleteObject(oldBitmap);
+            if (imagen.bitmap() != NULL)
+            {
+                oldBitmap = SelectObject(imagehdc, imagen.bitmap());
+                StretchBlt(hDCMem, imagen.posX(), imagen.posY(), imagen.ancho(), imagen.alto(), imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT);
+                SelectObject(imagehdc, oldBitmap);
+                DeleteObject(imagehdc);
+                DeleteObject(oldBitmap);
+            }
+        }
+        else if (imagen.bitmap() != NULL)
+        {
+            GetObject(imagen.bitmap(), sizeof(bitmap), &bitmap);
+
             oldBitmap = SelectObject(imagehdc, imagen.bitmap());
-            BitBlt(hDCMem, imagen.posX(), imagen.posY(), imagen.ancho(), imagen.alto(), imagehdc, 0, 0, SRCCOPY);
+            StretchBlt(hDCMem, imagen.posX(), imagen.posY(), imagen.ancho(), imagen.alto(), imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
             SelectObject(imagehdc, oldBitmap);
             DeleteObject(imagehdc);
             DeleteObject(oldBitmap);
