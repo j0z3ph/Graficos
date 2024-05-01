@@ -406,7 +406,7 @@ namespace miniwin
 	 * @return true Si el mouse se encuentra dentro de la ventana.
 	 * @return false Si el mouse se encuentra fuera de la ventana.
 	 */
-	bool raton(float *x, float *y);
+	bool raton(float &x, float &y);
 	/**
 	 * @brief Permite saber si el mouse se encuentra dentro de la ventana.
 	 *

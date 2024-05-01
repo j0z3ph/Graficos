@@ -27,8 +27,8 @@ int main()
     hongo.posX(150);
     hongo.posY(150);
 
-    hongo.alto(50);
-    hongo.ancho(50);
+    //hongo.alto(50);
+    //hongo.ancho(50);
 
     vventana(ANCHO, ALTO);
     vtitulo("Mi Primer Juego");
