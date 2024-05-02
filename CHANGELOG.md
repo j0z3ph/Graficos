@@ -22,6 +22,12 @@ Los cambios principales hechos al proyecto se escribiran aqui.
 - Ahora la ventana se coloca en el centro de la pantalla cuanto se crea o se redimensiona con las funciones `ventana` y `vredimensiona`.
 - Se actualiza el archivo `MakeFile`.
 
+### Corregido
+
+- [C] Se cambia la funcion `muestraImagen` a paso de parametros por referencia tal como su contraparte en C++.
+- [C] Se cambia la funcion `eliminaImagen` a paso de parametros por referencia.
+
+
 ## [0.2.1] - 2024-04-30
 
 ### Corregido

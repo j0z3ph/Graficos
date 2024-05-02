@@ -850,10 +850,10 @@ MWImage creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask)
 	return image;
 }
 
-void eliminaImagen(MWImage imagen)
+void eliminaImagen(MWImage *imagen)
 {
-	DeleteObject(imagen.hBitmap);
-	DeleteObject(imagen.hBitmap_mask);
+	DeleteObject(imagen->hBitmap);
+	DeleteObject(imagen->hBitmap_mask);
 }
 
 void __muestraImagen(MWImage imagen)
@@ -888,35 +888,35 @@ void __muestraImagen(MWImage imagen)
 	}
 }
 
-void muestraImagen(MWImage imagen)
+void muestraImagen(MWImage *imagen)
 {
 	HGDIOBJ oldBitmap;
 	BITMAP bitmap;
 	HDC imagehdc = CreateCompatibleDC(NULL);
 	HDC imagehdc_mask = CreateCompatibleDC(NULL);
 
-	if (imagen.hBitmap_mask != NULL)
+	if (imagen->hBitmap_mask != NULL)
 	{
-		GetObject(imagen.hBitmap_mask, sizeof(bitmap), &bitmap);
-		oldBitmap = SelectObject(imagehdc_mask, imagen.hBitmap_mask);
-		StretchBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc_mask, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
+		GetObject(imagen->hBitmap_mask, sizeof(bitmap), &bitmap);
+		oldBitmap = SelectObject(imagehdc_mask, imagen->hBitmap_mask);
+		StretchBlt(hDCMem, imagen->pos_x, imagen->pos_y, imagen->ancho, imagen->alto, imagehdc_mask, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
 		SelectObject(imagehdc_mask, oldBitmap);
 		DeleteObject(imagehdc_mask);
 		DeleteObject(oldBitmap);
-		if (imagen.hBitmap != NULL)
+		if (imagen->hBitmap != NULL)
 		{
-			oldBitmap = SelectObject(imagehdc, imagen.hBitmap);
-			StretchBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT);
+			oldBitmap = SelectObject(imagehdc, imagen->hBitmap);
+			StretchBlt(hDCMem, imagen->pos_x, imagen->pos_y, imagen->ancho, imagen->alto, imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT);
 			SelectObject(imagehdc, oldBitmap);
 			DeleteObject(imagehdc);
 			DeleteObject(oldBitmap);
 		}
 	}
-	else if (imagen.hBitmap != NULL)
+	else if (imagen->hBitmap != NULL)
 	{
-		GetObject(imagen.hBitmap, sizeof(bitmap), &bitmap);
-		oldBitmap = SelectObject(imagehdc, imagen.hBitmap);
-		StretchBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+		GetObject(imagen->hBitmap, sizeof(bitmap), &bitmap);
+		oldBitmap = SelectObject(imagehdc, imagen->hBitmap);
+		StretchBlt(hDCMem, imagen->pos_x, imagen->pos_y, imagen->ancho, imagen->alto, imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
 		SelectObject(imagehdc, oldBitmap);
 		DeleteObject(imagehdc);
 		DeleteObject(oldBitmap);

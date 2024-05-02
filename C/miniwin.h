@@ -160,14 +160,14 @@ MWImage creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask);
  *
  * @param imagen La imagen a eliminar.
  */
-void eliminaImagen(MWImage imagen);
+void eliminaImagen(MWImage *imagen);
 
 /**
  * @brief Muestra la imagen en pantalla.
  *
  * @param imagen La imagen en mostrar.
  */
-void muestraImagen(MWImage imagen);
+void muestraImagen(MWImage *imagen);
 
 /**
  * @brief Muestra una imagen en pantalla a la escala deseada.

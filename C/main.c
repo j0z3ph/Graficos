@@ -61,7 +61,7 @@ int main()
         hongo.pos_y = y;
 
         // Imagen TEST
-        muestraImagen(hongo);
+        muestraImagen(&hongo);
 
         refresca();
         t = teclaDown();
@@ -96,7 +96,7 @@ int main()
 
         espera(1);
     }
-    eliminaImagen(hongo);
+    eliminaImagen(&hongo);
     cierra();
     return 0;
 }
