@@ -1031,7 +1031,7 @@ void fullscreen(bool fullscreenOn)
 	else if (!fullscreenOn && _fullscreen)
 	{
 		SetWindowLong(hWnd, GWL_STYLE,
-					  dwStyle | WS_OVERLAPPEDWINDOW);
+					  dwStyle | WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX);
 		SetWindowPlacement(hWnd, &g_wpPrev);
 		iWidth = iWidthPrev;
 		iHeight = iHeightPrev;

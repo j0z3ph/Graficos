@@ -1,4 +1,4 @@
-MAIN=main.c
+MAIN=test.c
 run: main.exe
 	.\main.exe
 

@@ -1,4 +1,4 @@
-MAIN=main.cpp
+MAIN=test.cpp
 
 run: main.exe
 	.\main.exe
