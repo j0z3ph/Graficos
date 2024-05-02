@@ -1,7 +1,18 @@
 MAIN=test.cpp
+COMPILER=g++
+APP=main.exe
+MINIWIN_H=miniwin.hpp
+MINIWIN_LIB=miniwin.o
+MINIWIN_SRC=miniwin.cpp
+WIN_FLAGS=-mwindows
+run: $(APP)
+	./$(APP)
 
-run: main.exe
-	.\main.exe
+$(APP): $(MAIN) $(MINIWIN_H) $(MINIWIN_LIB)
+	$(COMPILER) -o $(APP) $(MINIWIN_LIB) $(MAIN) $(WIN_FLAGS)
 
-main.exe: miniwin.cpp $(MAIN) miniwin.hpp
-	g++ -o main.exe miniwin.cpp $(MAIN) -mwindows
+$(MINIWIN_LIB): $(MINIWIN_H) $(MINIWIN_SRC)
+	$(COMPILER) -c $(MINIWIN_SRC) -o $(MINIWIN_LIB)
+
+clean: 
+	del $(APP) $(MINIWIN_LIB)

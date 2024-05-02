@@ -1,6 +1,18 @@
 MAIN=test.c
-run: main.exe
-	.\main.exe
+COMPILER=gcc
+APP=main.exe
+MINIWIN_H=miniwin.h
+MINIWIN_LIB=miniwin.o
+MINIWIN_SRC=miniwin.c
+WIN_FLAGS=-mwindows
+run: $(APP)
+	./$(APP)
 
-main.exe: miniwin.c $(MAIN) miniwin.h
-	gcc -o main.exe miniwin.c $(MAIN) -mwindows
+$(APP): $(MAIN) $(MINIWIN_H) $(MINIWIN_LIB)
+	$(COMPILER) -o $(APP) $(MINIWIN_LIB) $(MAIN) $(WIN_FLAGS)
+
+$(MINIWIN_LIB): $(MINIWIN_H) $(MINIWIN_SRC)
+	$(COMPILER) -c $(MINIWIN_SRC) -o $(MINIWIN_LIB)
+
+clean: 
+	del $(APP) $(MINIWIN_LIB)
