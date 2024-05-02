@@ -1,5 +1,6 @@
+MAIN=main.c
 run: main.exe
 	.\main.exe
 
-main.exe: miniwin.c main.c miniwin.h
-	gcc -o main.exe miniwin.c main.c -mwindows
+main.exe: miniwin.c $(MAIN) miniwin.h
+	gcc -o main.exe miniwin.c $(MAIN) -mwindows

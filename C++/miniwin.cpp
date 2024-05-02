@@ -5,7 +5,7 @@
  *    ella y detectar la presión de algunas teclas. Básicamente para hacer
  *    juegos sencillos.
  *    Basado en el trabajo de Pau Fernández.
- * @version 0.2
+ * @version 0.2.2
  * @date 2023-12-09
  *
  *  MiniWin: Un mini-conjunto de funciones para abrir una ventana, pintar en
@@ -49,7 +49,10 @@ std::queue<int> _teclasUp; // cola de teclas 2
 bool _raton_dentro;        // el raton est� dentro del 'client area'
 int _xraton, _yraton;      // posicion del raton
 bool _bot_izq, _bot_der;   // botones izquierdo y derecho
-
+WINDOWPLACEMENT g_wpPrev;  // respaldo de la posicion de la ventana antes de ir a fullscreen
+int iWidthPrev;            // respaldo del ancho de la ventana antes de ir a fullscreen
+int iHeightPrev;           // respaldo del alto de la ventana antes de ir a fullscreen
+bool _fullscreen = false;  // modo fullscreen
 ////////////////////////////////////////////////////////////////////////////////
 
 std::ostream &log()
@@ -125,22 +128,26 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
     if (!RegisterClassEx(&wincl))
         return 0;
 
-    int w, h;
+    int w, h, xPos, yPos;
     frame_real(iWidth, iHeight, w, h);
 
+    // Centra la ventana
+    xPos = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
+    yPos = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
+
     hWnd = CreateWindowEx(
-        0,                   /* Extended possibilites for variation */
-        szClassName,         /* Classname */
-        "POO",               /* Title Text */
-        WS_OVERLAPPEDWINDOW, /* default window */
-        CW_USEDEFAULT,       /* Windows decides the position */
-        CW_USEDEFAULT,       /* where the window ends up on the screen */
-        w,                   /* The programs width */
-        h,                   /* and height in pixels */
-        HWND_DESKTOP,        /* The window is a child-window to desktop */
-        NULL,                /* No menu */
-        hThisInstance,       /* Program Instance handler */
-        NULL                 /* No Window Creation data */
+        0,                                     /* Extended possibilites for variation */
+        szClassName,                           /* Classname */
+        _MINIWIN_VERSION_,                     /* Title Text */
+        WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX, /* no resizable window */
+        xPos,                                  /* The window position  */
+        yPos,                                  /* in x and y coordinates */
+        w,                                     /* The programs width */
+        h,                                     /* and height in pixels */
+        HWND_DESKTOP,                          /* The window is a child-window to desktop */
+        NULL,                                  /* No menu */
+        hThisInstance,                         /* Program Instance handler */
+        NULL                                   /* No Window Creation data */
     );
 
     hBitmap = NULL;
@@ -367,6 +374,7 @@ COLORREF _back_color = RGB(255, 255, 255);
 
 namespace miniwin
 {
+
     MiniWinImage::MiniWinImage(std::string ruta) throw(const char *)
     {
         BITMAP bitmap;
@@ -828,7 +836,7 @@ namespace miniwin
         RGB(255, 255, 255), // BLANCO
     };
 
-    void color(int c)
+    void color(Colores c)
     {
         if (c >= 0 && c <= 7)
             _color = _colores[c];
@@ -846,12 +854,14 @@ namespace miniwin
                                          : b);
     }
 
-    void color_fondo(int c)
+    void color_fondo(Colores c)
     {
         if (c >= 0 && c <= 7)
             _back_color = _colores[c];
         else
             _back_color = _colores[0];
+        borra();
+        refresca();
     }
 
     void color_fondo_rgb(int r, int g, int b)
@@ -862,6 +872,8 @@ namespace miniwin
                                               : g,
                           b < 0 ? 0 : b > 255 ? 255
                                               : b);
+        borra();
+        refresca();
     }
 
     int vancho()
@@ -879,22 +891,69 @@ namespace miniwin
         iWidth = ample;
         iHeight = alt;
         int w, h;
+        int xPos;
+        int yPos;
+
         frame_real(iWidth, iHeight, w, h);
-        SetWindowPos(hWnd, NULL, 0, 0, w, h, SWP_NOMOVE);
+
+        // Centra la ventana
+        xPos = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
+        yPos = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
+
+        SetWindowPos(hWnd, HWND_TOP, xPos, yPos, w, h, SWP_FRAMECHANGED);
         newMemDC(w, h);
     }
 
-    void vventana(int ancho, int alto)
+    void fullscreen(bool fullscreenOn)
+    {
+        DWORD dwStyle = GetWindowLong(hWnd, GWL_STYLE);
+        if (fullscreenOn && !_fullscreen)
+        {
+            MONITORINFO mi = {sizeof(mi)};
+            if (GetWindowPlacement(hWnd, &g_wpPrev) &&
+                GetMonitorInfo(MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY), &mi))
+            {
+                SetWindowLong(hWnd, GWL_STYLE,
+                              dwStyle & ~WS_OVERLAPPEDWINDOW);
+                SetWindowPos(hWnd, HWND_TOP,
+                             mi.rcMonitor.left, mi.rcMonitor.top,
+                             mi.rcMonitor.right - mi.rcMonitor.left,
+                             mi.rcMonitor.bottom - mi.rcMonitor.top,
+                             SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+                iWidthPrev = iWidth;
+                iHeightPrev = iHeight;
+                iWidth = mi.rcMonitor.right - mi.rcMonitor.left;
+                iHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
+                _fullscreen = true;
+                borra();
+                refresca();
+            }
+        }
+        else if (!fullscreenOn && _fullscreen)
+        {
+            SetWindowLong(hWnd, GWL_STYLE,
+                          dwStyle | WS_OVERLAPPEDWINDOW);
+            SetWindowPlacement(hWnd, &g_wpPrev);
+            iWidth = iWidthPrev;
+            iHeight = iHeightPrev;
+            _fullscreen = false;
+            vredimensiona(iWidth, iHeight);
+            borra();
+            refresca();
+        }
+    }
+
+    void ventana(int ancho, int alto)
     {
         vredimensiona(ancho, alto);
     }
 
-    void vcierra()
+    void cierra()
     {
         PostMessage(hWnd, WM_CLOSE, 0, 0);
     }
 
-    void vtitulo(std::string titulo)
+    void titulo(std::string titulo)
     {
         SetWindowTextA(hWnd, titulo.c_str());
     }

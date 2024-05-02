@@ -5,7 +5,7 @@
  *    ella y detectar la presión de algunas teclas. Básicamente para hacer
  *    juegos sencillos.
  *    Basado en el trabajo de Pau Fernández.
- * @version 0.2
+ * @version 0.2.2
  * @date 2023-12-09
  *
  *  MiniWin: Un mini-conjunto de funciones para abrir una ventana, pintar en
@@ -20,6 +20,8 @@
 
 #ifndef _MINIWIN_H_
 #define _MINIWIN_H_
+
+#define _MINIWIN_VERSION_ "MiniWin 0.2.2"
 
 #include <iostream>
 #include <windows.h>
@@ -36,6 +38,41 @@ std::ostream &log();
 
 namespace miniwin
 {
+
+	enum Teclas
+	{
+		ESCAPE,
+		IZQUIERDA,
+		DERECHA,
+		ARRIBA,
+		ABAJO,
+		F1,
+		F2,
+		F3,
+		F4,
+		F5,
+		F6,
+		F7,
+		F8,
+		F9,
+		F10,
+		ESPACIO,
+		RETURN,
+		NINGUNA
+	};
+
+	enum Colores
+	{
+		NEGRO,
+		ROJO,
+		VERDE,
+		AZUL,
+		AMARILLO,
+		MAGENTA,
+		CYAN,
+		BLANCO
+	};
+
 	class MiniWinImage
 	{
 	private:
@@ -146,11 +183,20 @@ namespace miniwin
 	};
 
 	/**
+	 * @brief Permite cambiar al modo pantalla completa. 
+	 * Nota: Las dimensiones de la ventana cambian. 
+	 * 
+	 * @param fullscreenOn Si es true, cambia al modo pantalla completa. 
+	 * Si es false, regresa al modo ventana con las ultimas dimensiones establecidas.
+	 */
+	void fullscreen(bool fullscreenOn);
+
+	/**
 	 * @brief Permite cambiar el color de fondo de la ventana.
 	 *
 	 * @param c Nuevo color de alguno de los enumeradores.
 	 */
-	void color_fondo(int c);
+	void color_fondo(Colores c);
 
 	/**
 	 * @brief Permite cambiar el color de fondo de la ventana.
@@ -202,7 +248,7 @@ namespace miniwin
 	 * @param ancho Ancho de la ventana
 	 * @param alto Alto de la ventana
 	 */
-	void vventana(int ancho, int alto);
+	void ventana(int ancho, int alto);
 
 	/**
 	 * @brief Limpia el contenido de la ventana.
@@ -276,13 +322,13 @@ namespace miniwin
 	 * @brief Permite cerrar la ventana.
 	 *
 	 */
-	void vcierra();
+	void cierra();
 	/**
 	 * @brief Permite cambiar el titulo de la ventana.
 	 *
 	 * @param titulo Nuevo titulo de la ventana.
 	 */
-	void vtitulo(std::string titulo);
+	void titulo(std::string titulo);
 
 	/**
 	 * @brief Permite cambiar el color a usar para dibujar en
@@ -298,7 +344,7 @@ namespace miniwin
 	 * 6 - CYAN
 	 * 7 - BLANCO
 	 */
-	void color(int c);
+	void color(Colores c);
 	/**
 	 * @brief Permite cambiar el color a usar para dibujar en
 	 * la pantalla.
@@ -432,7 +478,7 @@ namespace miniwin
 	 * @param izq true Si se presiono el boton izquierdo. false En cualquier otro caso.
 	 * @param der true Si se presiono el boton derecho. false En cualquier otro caso.
 	 */
-	void raton_botones(bool *izq, bool *der);
+	void raton_botones(bool &izq, bool &der);
 	/**
 	 * @brief Permite determinar si se presiono el boton izquierdo del mouse.
 	 *
@@ -447,40 +493,6 @@ namespace miniwin
 	 * @return false Si no se presiono.
 	 */
 	bool raton_boton_der();
-
-	enum
-	{
-		ESCAPE,
-		IZQUIERDA,
-		DERECHA,
-		ARRIBA,
-		ABAJO,
-		F1,
-		F2,
-		F3,
-		F4,
-		F5,
-		F6,
-		F7,
-		F8,
-		F9,
-		F10,
-		ESPACIO,
-		RETURN,
-		NINGUNA
-	};
-
-	enum
-	{
-		NEGRO,
-		ROJO,
-		VERDE,
-		AZUL,
-		AMARILLO,
-		MAGENTA,
-		CYAN,
-		BLANCO
-	};
 
 } // namespace miniwin
 

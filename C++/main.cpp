@@ -11,8 +11,6 @@
 #include <iostream>
 #include "miniwin.hpp"
 #define GRAVITY 1
-#define ANCHO 800
-#define ALTO 600
 #define JUMP -20
 
 using namespace miniwin;
@@ -20,6 +18,7 @@ using namespace miniwin;
 int main()
 {
     int t, aceleracion = 0;
+    bool on = false;
     bool i_presionada = false;
     bool d_presionada = false;
     float x = 150, y = 150;
@@ -30,27 +29,26 @@ int main()
     //hongo.alto(50);
     //hongo.ancho(50);
 
-    vventana(ANCHO, ALTO);
-    vtitulo("Mi Primer Juego");
+    ventana(800, 600);
+    titulo("Mi Primer Juego");
 
     color_fondo(ROJO);
 
     t = tecla();
     while (t != ESCAPE)
     {
-
         y += aceleracion;
         aceleracion += GRAVITY;
-        if (y + hongo.alto() > ALTO)
-            y = ALTO - hongo.alto();
+        if (y + hongo.alto() > valto())
+            y = valto() - hongo.alto();
         if (i_presionada)
             x -= 10;
         if (x < 0)
             x = 0;
         if (d_presionada)
             x += 10;
-        if (x + hongo.ancho() > ANCHO)
-            x = ANCHO - hongo.ancho();
+        if (x + hongo.ancho() > vancho())
+            x = vancho() - hongo.ancho();
 
         borra();
         color(NEGRO);
@@ -68,6 +66,11 @@ int main()
 
         refresca();
         t = teclaDown();
+
+        if(t == RETURN) {
+            on = !on;
+            fullscreen(on);
+        }
 
         if (t == IZQUIERDA)
         {
@@ -95,6 +98,6 @@ int main()
         espera(1);
     }
     
-    vcierra();
+    cierra();
     return 0;
 }

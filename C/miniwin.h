@@ -13,13 +13,15 @@
  *    juegos sencillos.
  *
  *  (c) Pau Fernández, licencia MIT: http://es.wikipedia.org/wiki/MIT_License
- * 
+ *
  * Git original: https://github.com/pauek/MiniWin
  * Git: https://github.com/j0z3ph/Miniwin
  */
 
 #ifndef _MINIWIN_H_
 #define _MINIWIN_H_
+
+#define _MINIWIN_VERSION_ "MiniWin 0.2.2"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -31,6 +33,40 @@
 
 int _main_();
 
+typedef enum Teclas
+{
+	ESCAPE,
+	IZQUIERDA,
+	DERECHA,
+	ARRIBA,
+	ABAJO,
+	F1,
+	F2,
+	F3,
+	F4,
+	F5,
+	F6,
+	F7,
+	F8,
+	F9,
+	F10,
+	ESPACIO,
+	RETURN,
+	NINGUNA
+} Teclas;
+
+typedef enum Colores
+{
+	NEGRO,
+	ROJO,
+	VERDE,
+	AZUL,
+	AMARILLO,
+	MAGENTA,
+	CYAN,
+	BLANCO
+} Colores;
+
 typedef struct MiniWinImage
 {
 	/**
@@ -40,7 +76,7 @@ typedef struct MiniWinImage
 	char ruta[256];
 	/**
 	 * @brief La ruta original de donde se cargo la mascara.
-	 * 
+	 *
 	 */
 	char ruta_mask[256];
 	/**
@@ -50,7 +86,7 @@ typedef struct MiniWinImage
 	HGDIOBJ hBitmap;
 	/**
 	 * @brief Mascara en memoria. Se requiere para mostarla en pantalla.
-	 * 
+	 *
 	 */
 	HGDIOBJ hBitmap_mask;
 	/**
@@ -76,11 +112,20 @@ typedef struct MiniWinImage
 } MWImage;
 
 /**
+ * @brief Permite cambiar al modo pantalla completa.
+ * Nota: Las dimensiones de la ventana cambian.
+ *
+ * @param fullscreenOn Si es true, cambia al modo pantalla completa.
+ * Si es false, regresa al modo ventana con las ultimas dimensiones establecidas.
+ */
+void fullscreen(bool fullscreenOn);
+
+/**
  * @brief Permite cambiar el color de fondo de la ventana.
  *
  * @param c Nuevo color de alguno de los enumeradores.
  */
-void color_fondo(int c);
+void color_fondo(Colores c);
 
 /**
  * @brief Permite cambiar el color de fondo de la ventana.
@@ -103,7 +148,7 @@ MWImage creaImagenBMP(const char *ruta);
 /**
  * @brief Permite crear una imagen BMP.
  * NOTA: No se aceptan imagenes de otro formato.
- * 
+ *
  * @param ruta Ruta de la imagen a cargar.
  * @param ruta_mask Ruta de la mascara. Debe ser del mismo tamanio.
  * @return MWImage Representacion de la imagen.
@@ -126,12 +171,12 @@ void muestraImagen(MWImage imagen);
 
 /**
  * @brief Muestra una imagen en pantalla a la escala deseada.
- * 
+ *
  * @param imagen Imagen a mostrar.
  * @param ancho Ancho deseado.
  * @param alto Alto deseado.
  */
-//void muestraImagenEscalada(MWImage imagen, int ancho, int alto);
+// void muestraImagenEscalada(MWImage imagen, int ancho, int alto);
 
 /**
  * @brief Permite imprimir un texto en pantalla.
@@ -167,7 +212,7 @@ int teclaDown();
  * @param ancho Ancho de la ventana
  * @param alto Alto de la ventana
  */
-void vventana(int ancho, int alto);
+void ventana(int ancho, int alto);
 
 /**
  * @brief Limpia el contenido de la ventana.
@@ -241,13 +286,13 @@ void vredimensiona(int ancho, int alto);
  * @brief Permite cerrar la ventana.
  *
  */
-void vcierra();
+void cierra();
 /**
  * @brief Permite cambiar el titulo de la ventana.
  *
  * @param titulo Nuevo titulo de la ventana.
  */
-void vtitulo(const char *titulo);
+void titulo(const char *titulo);
 
 /**
  * @brief Permite cambiar el color a usar para dibujar en
@@ -263,7 +308,7 @@ void vtitulo(const char *titulo);
  * 6 - CYAN
  * 7 - BLANCO
  */
-void color(int c);
+void color(Colores c);
 /**
  * @brief Permite cambiar el color a usar para dibujar en
  * la pantalla.
@@ -412,39 +457,5 @@ bool raton_boton_izq();
  * @return false Si no se presiono.
  */
 bool raton_boton_der();
-
-enum
-{
-	ESCAPE,
-	IZQUIERDA,
-	DERECHA,
-	ARRIBA,
-	ABAJO,
-	F1,
-	F2,
-	F3,
-	F4,
-	F5,
-	F6,
-	F7,
-	F8,
-	F9,
-	F10,
-	ESPACIO,
-	RETURN,
-	NINGUNA
-};
-
-enum
-{
-	NEGRO,
-	ROJO,
-	VERDE,
-	AZUL,
-	AMARILLO,
-	MAGENTA,
-	CYAN,
-	BLANCO
-};
 
 #endif
