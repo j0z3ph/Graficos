@@ -1,13 +1,3 @@
-/**
- * @file main.c
- * @author your name (you@domain.com)
- * @brief
- * @version 0.1
- * @date 2023-12-13
- *
- * @copyright Copyright (c) 2023
- *
- */
 #include <stdio.h>
 #include "miniwin.h"
 #define GRAVITY 1
@@ -20,14 +10,14 @@ int main()
     bool i_presionada = false;
     bool d_presionada = false;
     float x = 150, y = 150;
-    MWImage hongo = creaImagenYMascaraBMP(".\\hongoNoMask.bmp", ".\\hongomask.bmp");
-    //MWImage hongo = creaImagenBMP(".\\hongo.bmp");
-    MWImage fondo = creaImagenBMP("fondo.bmp");
-    hongo.pos_x = 150;
-    hongo.pos_y = 150;
+    MWImage *hongo = creaImagenYMascaraBMP("hongoNoMask.bmp", "hongomask.bmp");
+    //MWImage hongo = creaImagenBMP("hongo.bmp");
+    MWImage *fondo = creaImagenBMP("fondo.bmp");
+    hongo->pos_x = 150;
+    hongo->pos_y = 150;
 
-    hongo.alto = 50;
-    hongo.ancho = 50;
+    //hongo.alto = 50;
+    //hongo.ancho = 50;
 
     ventana(800, 600);
     titulo("Mi Primer Juego");
@@ -39,19 +29,19 @@ int main()
     {
         y += aceleracion;
         aceleracion += GRAVITY;
-        if (y + hongo.alto > valto())
-            y = valto() - hongo.alto;
+        if (y + hongo->alto > valto())
+            y = valto() - hongo->alto;
         if (i_presionada)
             x -= 10;
         if (x < 0)
             x = 0;
         if (d_presionada)
             x += 10;
-        if (x + hongo.ancho > vancho())
-            x = vancho() - hongo.ancho;
+        if (x + hongo->ancho > vancho())
+            x = vancho() - hongo->ancho;
 
         borra();
-        muestraImagen(&fondo);
+        muestraImagen(fondo);
         color(NEGRO);
         // texto(20,20,"Presione ESC para salir");
         textoExt(20, 20, "Presione ESC para salir", 50, true, true, true, "Arial");
@@ -59,11 +49,11 @@ int main()
 
         // color(VERDE);
         // rectangulo_lleno(x,y,x+50,y+50);
-        hongo.pos_x = x;
-        hongo.pos_y = y;
+        hongo->pos_x = x;
+        hongo->pos_y = y;
 
         // Imagen TEST
-        muestraImagen(&hongo);
+        muestraImagen(hongo);
 
         refresca();
         t = teclaDown();
@@ -98,7 +88,8 @@ int main()
 
         espera(1);
     }
-    eliminaImagen(&hongo);
+    eliminaImagen(hongo);
+    eliminaImagen(fondo);
     cierra();
     return 0;
 }
