@@ -21,7 +21,7 @@
 #ifndef _MINIWIN_H_
 #define _MINIWIN_H_
 
-#define _MINIWIN_VERSION_ "MiniWin 0.2.2"
+#define _MINIWIN_VERSION_ "MiniWin 0.2.3"
 
 #include <iostream>
 #include <windows.h>
@@ -91,7 +91,7 @@ namespace miniwin
 		 *
 		 * @param ruta La ruta de la imagen. El archivo debe ser <b>BMP</b>
 		 */
-		MiniWinImage(std::string ruta) throw(const char *);
+		MiniWinImage(std::string ruta);
 		/**
 		 * @brief Crea una imagen de MiniWin
 		 *
@@ -99,7 +99,7 @@ namespace miniwin
 		 * @param ruta_mask La ruta de la mascara. El archivo debe ser <b>BMP</b> y del mismo tamanio
 		 * que la imagen.
 		 */
-		MiniWinImage(std::string ruta, std::string ruta_mask) throw(const char *);
+		MiniWinImage(std::string ruta, std::string ruta_mask);
 
 		~MiniWinImage();
 

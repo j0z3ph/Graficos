@@ -375,7 +375,7 @@ COLORREF _back_color = RGB(255, 255, 255);
 namespace miniwin
 {
 
-    MiniWinImage::MiniWinImage(std::string ruta) throw(const char *)
+    MiniWinImage::MiniWinImage(std::string ruta)
     {
         BITMAP bitmap;
 
@@ -395,7 +395,7 @@ namespace miniwin
         this->_ruta_mask = "";
     }
 
-    MiniWinImage::MiniWinImage(std::string ruta, std::string ruta_mask) throw(const char *)
+    MiniWinImage::MiniWinImage(std::string ruta, std::string ruta_mask)
     {
         BITMAP bitmap;
 
@@ -792,29 +792,27 @@ namespace miniwin
     {
         HGDIOBJ oldBitmap;
         BITMAP bitmap;
-        HDC imagehdc = CreateCompatibleDC(NULL);
-        HDC imagehdc_mask = CreateCompatibleDC(NULL);
+        HDC imagehdc;
 
         if (imagen.bitmap_mask() != NULL)
         {
+            imagehdc = CreateCompatibleDC(NULL);
             GetObject(imagen.bitmap_mask(), sizeof(bitmap), &bitmap);
 
-            oldBitmap = SelectObject(imagehdc_mask, imagen.bitmap_mask());
-            StretchBlt(hDCMem, imagen.posX(), imagen.posY(), imagen.ancho(), imagen.alto(), imagehdc_mask, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
-            SelectObject(imagehdc_mask, oldBitmap);
-            DeleteObject(imagehdc_mask);
-            DeleteObject(oldBitmap);
+            oldBitmap = SelectObject(imagehdc, imagen.bitmap_mask());
+            StretchBlt(hDCMem, imagen.posX(), imagen.posY(), imagen.ancho(), imagen.alto(), imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
             if (imagen.bitmap() != NULL)
             {
-                oldBitmap = SelectObject(imagehdc, imagen.bitmap());
+                SelectObject(imagehdc, imagen.bitmap());
                 StretchBlt(hDCMem, imagen.posX(), imagen.posY(), imagen.ancho(), imagen.alto(), imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT);
-                SelectObject(imagehdc, oldBitmap);
-                DeleteObject(imagehdc);
-                DeleteObject(oldBitmap);
             }
+            SelectObject(imagehdc, oldBitmap);
+            DeleteObject(imagehdc);
+            DeleteObject(oldBitmap);
         }
         else if (imagen.bitmap() != NULL)
         {
+            imagehdc = CreateCompatibleDC(NULL);
             GetObject(imagen.bitmap(), sizeof(bitmap), &bitmap);
 
             oldBitmap = SelectObject(imagehdc, imagen.bitmap());
@@ -860,8 +858,6 @@ namespace miniwin
             _back_color = _colores[c];
         else
             _back_color = _colores[0];
-        borra();
-        refresca();
     }
 
     void color_fondo_rgb(int r, int g, int b)
@@ -872,8 +868,6 @@ namespace miniwin
                                               : g,
                           b < 0 ? 0 : b > 255 ? 255
                                               : b);
-        borra();
-        refresca();
     }
 
     int vancho()

@@ -800,51 +800,51 @@ void textoExt(float x, float y, const char *texto, int tamanioFuente,
 	DeleteObject(hf);
 }
 
-MWImage creaImagenBMP(const char *ruta)
+MWImage* creaImagenBMP(const char *ruta)
 {
-	MWImage image;
+	MWImage *image = (MWImage *)malloc(sizeof(MWImage));
 	BITMAP bitmap;
-	image.ruta[0] = 0;
-	image.alto = 0;
-	image.ancho = 0;
-	image.hBitmap = (HBITMAP)LoadImageA(NULL, ruta, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-	if (image.hBitmap != NULL)
+	image->ruta[0] = 0;
+	image->alto = 0;
+	image->ancho = 0;
+	image->hBitmap = (HBITMAP)LoadImageA(NULL, ruta, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	if (image->hBitmap != NULL)
 	{
-		strcpy(image.ruta, ruta);
-		GetObject(image.hBitmap, sizeof(bitmap), &bitmap);
-		image.ancho = bitmap.bmWidth;
-		image.alto = bitmap.bmHeight;
+		strcpy(image->ruta, ruta);
+		GetObject(image->hBitmap, sizeof(bitmap), &bitmap);
+		image->ancho = bitmap.bmWidth;
+		image->alto = bitmap.bmHeight;
 	}
-	image.pos_x = 0;
-	image.pos_y = 0;
-	image.hBitmap_mask = NULL;
-	image.ruta_mask[0] = '\0';
+	image->pos_x = 0;
+	image->pos_y = 0;
+	image->hBitmap_mask = NULL;
+	image->ruta_mask[0] = '\0';
 	return image;
 }
 
-MWImage creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask)
+MWImage* creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask)
 {
-	MWImage image;
+	MWImage *image = (MWImage *)malloc(sizeof(MWImage));
 	BITMAP bitmap;
-	image.ruta[0] = 0;
-	image.ruta_mask[0] = 0;
-	image.alto = 0;
-	image.ancho = 0;
-	image.hBitmap = (HBITMAP)LoadImageA(NULL, ruta, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-	if (image.hBitmap != NULL)
+	image->ruta[0] = 0;
+	image->ruta_mask[0] = 0;
+	image->alto = 0;
+	image->ancho = 0;
+	image->hBitmap = (HBITMAP)LoadImageA(NULL, ruta, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	if (image->hBitmap != NULL)
 	{
-		strcpy(image.ruta, ruta);
-		GetObject(image.hBitmap, sizeof(bitmap), &bitmap);
-		image.ancho = bitmap.bmWidth;
-		image.alto = bitmap.bmHeight;
+		strcpy(image->ruta, ruta);
+		GetObject(image->hBitmap, sizeof(bitmap), &bitmap);
+		image->ancho = bitmap.bmWidth;
+		image->alto = bitmap.bmHeight;
 	}
-	image.pos_x = 0;
-	image.pos_y = 0;
+	image->pos_x = 0;
+	image->pos_y = 0;
 
-	image.hBitmap_mask = (HBITMAP)LoadImageA(NULL, ruta_mask, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-	if (image.hBitmap != NULL)
+	image->hBitmap_mask = (HBITMAP)LoadImageA(NULL, ruta_mask, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	if (image->hBitmap != NULL)
 	{
-		strcpy(image.ruta_mask, ruta_mask);
+		strcpy(image->ruta_mask, ruta_mask);
 	}
 
 	return image;
@@ -854,66 +854,33 @@ void eliminaImagen(MWImage *imagen)
 {
 	DeleteObject(imagen->hBitmap);
 	DeleteObject(imagen->hBitmap_mask);
-}
-
-void __muestraImagen(MWImage imagen)
-{
-	HGDIOBJ oldBitmap;
-	HDC imagehdc = CreateCompatibleDC(NULL);
-	HDC imagehdc_mask = CreateCompatibleDC(NULL);
-
-	if (imagen.hBitmap_mask != NULL)
-	{
-		oldBitmap = SelectObject(imagehdc_mask, imagen.hBitmap_mask);
-		BitBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc_mask, 0, 0, SRCAND);
-		SelectObject(imagehdc_mask, oldBitmap);
-		DeleteObject(imagehdc_mask);
-		DeleteObject(oldBitmap);
-		if (imagen.hBitmap != NULL)
-		{
-			oldBitmap = SelectObject(imagehdc, imagen.hBitmap);
-			BitBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc, 0, 0, SRCPAINT);
-			SelectObject(imagehdc, oldBitmap);
-			DeleteObject(imagehdc);
-			DeleteObject(oldBitmap);
-		}
-	}
-	else if (imagen.hBitmap != NULL)
-	{
-		oldBitmap = SelectObject(imagehdc, imagen.hBitmap);
-		BitBlt(hDCMem, imagen.pos_x, imagen.pos_y, imagen.ancho, imagen.alto, imagehdc, 0, 0, SRCCOPY);
-		SelectObject(imagehdc, oldBitmap);
-		DeleteObject(imagehdc);
-		DeleteObject(oldBitmap);
-	}
+	free(imagen);
 }
 
 void muestraImagen(MWImage *imagen)
 {
 	HGDIOBJ oldBitmap;
 	BITMAP bitmap;
-	HDC imagehdc = CreateCompatibleDC(NULL);
-	HDC imagehdc_mask = CreateCompatibleDC(NULL);
+	HDC imagehdc;
 
 	if (imagen->hBitmap_mask != NULL)
 	{
+		imagehdc = CreateCompatibleDC(NULL);
 		GetObject(imagen->hBitmap_mask, sizeof(bitmap), &bitmap);
-		oldBitmap = SelectObject(imagehdc_mask, imagen->hBitmap_mask);
-		StretchBlt(hDCMem, imagen->pos_x, imagen->pos_y, imagen->ancho, imagen->alto, imagehdc_mask, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
-		SelectObject(imagehdc_mask, oldBitmap);
-		DeleteObject(imagehdc_mask);
-		DeleteObject(oldBitmap);
+		oldBitmap = SelectObject(imagehdc, imagen->hBitmap_mask);
+		StretchBlt(hDCMem, imagen->pos_x, imagen->pos_y, imagen->ancho, imagen->alto, imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
 		if (imagen->hBitmap != NULL)
 		{
-			oldBitmap = SelectObject(imagehdc, imagen->hBitmap);
+			SelectObject(imagehdc, imagen->hBitmap);
 			StretchBlt(hDCMem, imagen->pos_x, imagen->pos_y, imagen->ancho, imagen->alto, imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT);
-			SelectObject(imagehdc, oldBitmap);
-			DeleteObject(imagehdc);
-			DeleteObject(oldBitmap);
 		}
+		SelectObject(imagehdc, oldBitmap);
+		DeleteObject(imagehdc);
+		DeleteObject(oldBitmap);
 	}
 	else if (imagen->hBitmap != NULL)
 	{
+		imagehdc = CreateCompatibleDC(NULL);
 		GetObject(imagen->hBitmap, sizeof(bitmap), &bitmap);
 		oldBitmap = SelectObject(imagehdc, imagen->hBitmap);
 		StretchBlt(hDCMem, imagen->pos_x, imagen->pos_y, imagen->ancho, imagen->alto, imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
@@ -958,9 +925,6 @@ void color_fondo(Colores c)
 		_back_color = _colores[c];
 	else
 		_back_color = _colores[0];
-
-	borra();
-	refresca();
 }
 
 void color_fondo_rgb(int r, int g, int b)
@@ -971,8 +935,6 @@ void color_fondo_rgb(int r, int g, int b)
 										  : g,
 					  b < 0 ? 0 : b > 255 ? 255
 										  : b);
-	borra();
-	refresca();
 }
 
 int vancho()

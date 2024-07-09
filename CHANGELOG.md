@@ -2,6 +2,20 @@
 
 Los cambios principales hechos al proyecto se escribiran aqui.
 
+## [0.2.3] - 2024-07-08
+
+### Corregido
+
+- [C/C++] Se corrige un error en la funcion `color_fondo` y `color_fondo_rgb` que generaba un parpadeo en la pantalla.
+- [C/C++] Se corrige un error en la funcion `muestraImagen` que hacia que las imagenes con mascara desaparecieran despues de un tiempo en ejecucion.
+- [C/C++] Se corrige un error en la funcion `muestraImagen` que no liberaba correctamente memoria en el caso de las imagenes sin mascara.
+
+### Cambiado
+
+- [C] Se cambian las funciones `creaImagenBMP` y `creaImagenYMascaraBMP` para devolver un puntero. Los objetos creados por la funcion ahora estan en memoria dinamica.
+- [C] Se cambia la funcion `eliminaImagen` para liberar la memoria dinamica creada por las funciones `creaImagenBMP` y `creaImagenYMascaraBMP`.
+
+
 ## [0.2.2] - 2024-05-01
 
 ### Agregado

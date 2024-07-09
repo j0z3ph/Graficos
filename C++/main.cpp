@@ -22,7 +22,8 @@ int main()
     bool i_presionada = false;
     bool d_presionada = false;
     float x = 150, y = 150;
-    MiniWinImage hongo(".\\hongo.bmp", ".\\hongomask.bmp");
+    MiniWinImage hongo("hongo.bmp", "hongomask.bmp");
+    MiniWinImage fondo("fondo.bmp");
     hongo.posX(150);
     hongo.posY(150);
 
@@ -51,6 +52,7 @@ int main()
             x = vancho() - hongo.ancho();
 
         borra();
+        muestraImagen(fondo);
         color(NEGRO);
         // texto(20,20,"Presione ESC para salir");
         texto(20, 20, "Presione ESC para salir", 50, true, true, true, "Arial");

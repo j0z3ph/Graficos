@@ -22,6 +22,7 @@ int main()
     float x = 150, y = 150;
     MWImage hongo = creaImagenYMascaraBMP(".\\hongoNoMask.bmp", ".\\hongomask.bmp");
     //MWImage hongo = creaImagenBMP(".\\hongo.bmp");
+    MWImage fondo = creaImagenBMP("fondo.bmp");
     hongo.pos_x = 150;
     hongo.pos_y = 150;
 
@@ -50,6 +51,7 @@ int main()
             x = vancho() - hongo.ancho;
 
         borra();
+        muestraImagen(&fondo);
         color(NEGRO);
         // texto(20,20,"Presione ESC para salir");
         textoExt(20, 20, "Presione ESC para salir", 50, true, true, true, "Arial");

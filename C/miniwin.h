@@ -21,7 +21,7 @@
 #ifndef _MINIWIN_H_
 #define _MINIWIN_H_
 
-#define _MINIWIN_VERSION_ "MiniWin 0.2.2"
+#define _MINIWIN_VERSION_ "MiniWin 0.2.3"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -143,7 +143,7 @@ void color_fondo_rgb(int r, int g, int b);
  * @param ruta Ruta de la imagen a cargar.
  * @return MWImage Representacion de la imagen.
  */
-MWImage creaImagenBMP(const char *ruta);
+MWImage* creaImagenBMP(const char *ruta);
 
 /**
  * @brief Permite crear una imagen BMP.
@@ -153,7 +153,7 @@ MWImage creaImagenBMP(const char *ruta);
  * @param ruta_mask Ruta de la mascara. Debe ser del mismo tamanio.
  * @return MWImage Representacion de la imagen.
  */
-MWImage creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask);
+MWImage* creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask);
 
 /**
  * @brief Permite eliminar una imagen creada.
