@@ -141,7 +141,8 @@ void color_fondo_rgb(int r, int g, int b);
  * NOTA: No se aceptan imagenes de otro formato.
  *
  * @param ruta Ruta de la imagen a cargar.
- * @return MWImage Representacion de la imagen.
+ * @return MWImage Representacion de la imagen. NULL si no fue
+ * posible cargar la imagen.
  */
 MWImage* creaImagenBMP(const char *ruta);
 
@@ -151,7 +152,8 @@ MWImage* creaImagenBMP(const char *ruta);
  *
  * @param ruta Ruta de la imagen a cargar.
  * @param ruta_mask Ruta de la mascara. Debe ser del mismo tamanio.
- * @return MWImage Representacion de la imagen.
+ * @return MWImage Representacion de la imagen. NULL si no fue 
+ * posible cargar la imagen.
  */
 MWImage* creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask);
 

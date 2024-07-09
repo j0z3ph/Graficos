@@ -4,7 +4,7 @@ APP=main.exe
 MINIWIN_H=miniwin.h
 MINIWIN_LIB=miniwin.o
 MINIWIN_SRC=miniwin.c
-WIN_FLAGS=-mwindows
+WIN_FLAGS=-mwindows -lwinmm
 run: $(APP)
 	./$(APP)
 

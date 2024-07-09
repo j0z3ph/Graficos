@@ -1,7 +1,14 @@
 #include <stdio.h>
 #include "miniwin.h"
+#include <mmsystem.h>
 #define GRAVITY 1
 #define JUMP -20
+
+DWORD WINAPI ThreadFunc(void *data)
+{
+    PlaySoundA("back.wav", NULL, SND_FILENAME | SND_SYNC | SND_LOOP);
+    return 0;
+}
 
 int main()
 {
@@ -11,13 +18,13 @@ int main()
     bool d_presionada = false;
     float x = 150, y = 150;
     MWImage *hongo = creaImagenYMascaraBMP("hongoNoMask.bmp", "hongomask.bmp");
-    //MWImage hongo = creaImagenBMP("hongo.bmp");
+    // MWImage hongo = creaImagenBMP("hongo.bmp");
     MWImage *fondo = creaImagenBMP("fondo.bmp");
     hongo->pos_x = 150;
     hongo->pos_y = 150;
 
-    //hongo.alto = 50;
-    //hongo.ancho = 50;
+    // hongo.alto = 50;
+    // hongo.ancho = 50;
 
     ventana(800, 600);
     titulo("Mi Primer Juego");
@@ -25,6 +32,9 @@ int main()
     color_fondo(ROJO);
 
     t = tecla();
+
+    HANDLE thread = CreateThread(NULL, 0, ThreadFunc, NULL, 0, NULL);
+
     while (t != ESCAPE)
     {
         y += aceleracion;
@@ -58,7 +68,8 @@ int main()
         refresca();
         t = teclaDown();
 
-        if(t == RETURN) {
+        if (t == RETURN)
+        {
             on = !on;
             fullscreen(on);
         }
@@ -74,6 +85,7 @@ int main()
         if (t == ESPACIO)
         {
             aceleracion = JUMP;
+            PlaySoundA("jump.wav", NULL, SND_FILENAME | SND_ASYNC);
         }
 
         t = teclaUp();

@@ -819,6 +819,11 @@ MWImage* creaImagenBMP(const char *ruta)
 	image->pos_y = 0;
 	image->hBitmap_mask = NULL;
 	image->ruta_mask[0] = '\0';
+
+	if(image->hBitmap == NULL) {
+		free(image);
+		image = NULL;
+	}
 	return image;
 }
 
@@ -845,6 +850,11 @@ MWImage* creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask)
 	if (image->hBitmap != NULL)
 	{
 		strcpy(image->ruta_mask, ruta_mask);
+	}
+
+	if(image->hBitmap == NULL || image->hBitmap_mask == NULL) {
+		free(image);
+		image = NULL;
 	}
 
 	return image;
