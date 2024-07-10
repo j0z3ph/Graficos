@@ -473,64 +473,9 @@ namespace miniwin
         if (_teclas.empty())
             return NINGUNA;
 
-        int ret = NINGUNA;
-        switch (_teclas.front())
-        {
-        case VK_LEFT:
-            ret = IZQUIERDA;
-            break;
-        case VK_RIGHT:
-            ret = DERECHA;
-            break;
-        case VK_UP:
-            ret = ARRIBA;
-            break;
-        case VK_DOWN:
-            ret = ABAJO;
-            break;
-        case VK_ESCAPE:
-            ret = ESCAPE;
-            break;
-        case VK_SPACE:
-            ret = ESPACIO;
-            break;
-        case VK_RETURN:
-            ret = RETURN;
-            break;
-        case VK_F1:
-            ret = F1;
-            break;
-        case VK_F2:
-            ret = F2;
-            break;
-        case VK_F3:
-            ret = F3;
-            break;
-        case VK_F4:
-            ret = F4;
-            break;
-        case VK_F5:
-            ret = F5;
-            break;
-        case VK_F6:
-            ret = F6;
-            break;
-        case VK_F7:
-            ret = F7;
-            break;
-        case VK_F8:
-            ret = F8;
-            break;
-        case VK_F9:
-            ret = F9;
-            break;
-        case VK_F10:
-            ret = F10;
-            break;
-        default:
-            ret = _teclas.front();
-        }
+        int ret = _teclas.front();
         _teclas.pop();
+
         return ret;
     }
 
@@ -541,67 +486,15 @@ namespace miniwin
 
     int teclaUp()
     {
+        while (!_teclas.empty())
+            _teclas.pop();
+
         if (_teclasUp.empty())
             return NINGUNA;
 
-        int ret = NINGUNA;
-        switch (_teclasUp.front())
-        {
-        case VK_LEFT:
-            ret = IZQUIERDA;
-            break;
-        case VK_RIGHT:
-            ret = DERECHA;
-            break;
-        case VK_UP:
-            ret = ARRIBA;
-            break;
-        case VK_DOWN:
-            ret = ABAJO;
-            break;
-        case VK_ESCAPE:
-            ret = ESCAPE;
-            break;
-        case VK_SPACE:
-            ret = ESPACIO;
-            break;
-        case VK_RETURN:
-            ret = RETURN;
-            break;
-        case VK_F1:
-            ret = F1;
-            break;
-        case VK_F2:
-            ret = F2;
-            break;
-        case VK_F3:
-            ret = F3;
-            break;
-        case VK_F4:
-            ret = F4;
-            break;
-        case VK_F5:
-            ret = F5;
-            break;
-        case VK_F6:
-            ret = F6;
-            break;
-        case VK_F7:
-            ret = F7;
-            break;
-        case VK_F8:
-            ret = F8;
-            break;
-        case VK_F9:
-            ret = F9;
-            break;
-        case VK_F10:
-            ret = F10;
-            break;
-        default:
-            ret = _teclasUp.front();
-        }
+        int ret = _teclasUp.front();
         _teclasUp.pop();
+        
         return ret;
     }
 

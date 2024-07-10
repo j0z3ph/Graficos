@@ -243,27 +243,27 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
 		return 0;
 
 	int w, h, xPos, yPos;
-    frame_real(iWidth, iHeight, &w, &h);
+	frame_real(iWidth, iHeight, &w, &h);
 
-    // Centra la ventana
-    xPos = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
-    yPos = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
+	// Centra la ventana
+	xPos = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
+	yPos = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
 
-    hWnd = CreateWindowEx(
-        0,                                     /* Extended possibilites for variation */
-        szClassName,                           /* Classname */
-        _MINIWIN_VERSION_,                     /* Title Text */
-        WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX, /* no resizable window */
-        xPos,                                  /* The window position  */
-        yPos,                                  /* in x and y coordinates */
-        w,                                     /* The programs width */
-        h,                                     /* and height in pixels */
-        HWND_DESKTOP,                          /* The window is a child-window to desktop */
-        NULL,                                  /* No menu */
-        hThisInstance,                         /* Program Instance handler */
-        NULL                                   /* No Window Creation data */
-    );
-	
+	hWnd = CreateWindowEx(
+		0,									   /* Extended possibilites for variation */
+		szClassName,						   /* Classname */
+		_MINIWIN_VERSION_,					   /* Title Text */
+		WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX, /* no resizable window */
+		xPos,								   /* The window position  */
+		yPos,								   /* in x and y coordinates */
+		w,									   /* The programs width */
+		h,									   /* and height in pixels */
+		HWND_DESKTOP,						   /* The window is a child-window to desktop */
+		NULL,								   /* No menu */
+		hThisInstance,						   /* Program Instance handler */
+		NULL								   /* No Window Creation data */
+	);
+
 	hBitmap = NULL;
 
 	ShowWindow(hWnd, nFunsterStil);
@@ -485,63 +485,7 @@ int tecla()
 	if (q_empty())
 		return NINGUNA;
 
-	int ret = NINGUNA;
-	switch (q_front())
-	{
-	case VK_LEFT:
-		ret = IZQUIERDA;
-		break;
-	case VK_RIGHT:
-		ret = DERECHA;
-		break;
-	case VK_UP:
-		ret = ARRIBA;
-		break;
-	case VK_DOWN:
-		ret = ABAJO;
-		break;
-	case VK_ESCAPE:
-		ret = ESCAPE;
-		break;
-	case VK_SPACE:
-		ret = ESPACIO;
-		break;
-	case VK_RETURN:
-		ret = RETURN;
-		break;
-	case VK_F1:
-		ret = F1;
-		break;
-	case VK_F2:
-		ret = F2;
-		break;
-	case VK_F3:
-		ret = F3;
-		break;
-	case VK_F4:
-		ret = F4;
-		break;
-	case VK_F5:
-		ret = F5;
-		break;
-	case VK_F6:
-		ret = F6;
-		break;
-	case VK_F7:
-		ret = F7;
-		break;
-	case VK_F8:
-		ret = F8;
-		break;
-	case VK_F9:
-		ret = F9;
-		break;
-	case VK_F10:
-		ret = F10;
-		break;
-	default:
-		ret = q_front();
-	}
+	int ret = q_front();
 	q_pop();
 	return ret;
 }
@@ -553,67 +497,15 @@ int teclaDown()
 
 int teclaUp()
 {
+	while (!q_empty())
+		q_pop();
+
 	if (q_empty2())
 		return NINGUNA;
 
-	int ret = NINGUNA;
-	switch (q_front2())
-	{
-	case VK_LEFT:
-		ret = IZQUIERDA;
-		break;
-	case VK_RIGHT:
-		ret = DERECHA;
-		break;
-	case VK_UP:
-		ret = ARRIBA;
-		break;
-	case VK_DOWN:
-		ret = ABAJO;
-		break;
-	case VK_ESCAPE:
-		ret = ESCAPE;
-		break;
-	case VK_SPACE:
-		ret = ESPACIO;
-		break;
-	case VK_RETURN:
-		ret = RETURN;
-		break;
-	case VK_F1:
-		ret = F1;
-		break;
-	case VK_F2:
-		ret = F2;
-		break;
-	case VK_F3:
-		ret = F3;
-		break;
-	case VK_F4:
-		ret = F4;
-		break;
-	case VK_F5:
-		ret = F5;
-		break;
-	case VK_F6:
-		ret = F6;
-		break;
-	case VK_F7:
-		ret = F7;
-		break;
-	case VK_F8:
-		ret = F8;
-		break;
-	case VK_F9:
-		ret = F9;
-		break;
-	case VK_F10:
-		ret = F10;
-		break;
-	default:
-		ret = q_front2();
-	}
+	int ret = q_front2();
 	q_pop2();
+
 	return ret;
 }
 
@@ -800,9 +692,9 @@ void textoExt(float x, float y, const char *texto, int tamanioFuente,
 	DeleteObject(hf);
 }
 
-MWImage* creaImagenBMP(const char *ruta)
+MiniWinImage *creaImagenBMP(const char *ruta)
 {
-	MWImage *image = (MWImage *)malloc(sizeof(MWImage));
+	MiniWinImage *image = (MiniWinImage *)malloc(sizeof(MiniWinImage));
 	BITMAP bitmap;
 	image->ruta[0] = 0;
 	image->alto = 0;
@@ -820,16 +712,17 @@ MWImage* creaImagenBMP(const char *ruta)
 	image->hBitmap_mask = NULL;
 	image->ruta_mask[0] = '\0';
 
-	if(image->hBitmap == NULL) {
+	if (image->hBitmap == NULL)
+	{
 		free(image);
 		image = NULL;
 	}
 	return image;
 }
 
-MWImage* creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask)
+MiniWinImage *creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask)
 {
-	MWImage *image = (MWImage *)malloc(sizeof(MWImage));
+	MiniWinImage *image = (MiniWinImage *)malloc(sizeof(MiniWinImage));
 	BITMAP bitmap;
 	image->ruta[0] = 0;
 	image->ruta_mask[0] = 0;
@@ -852,7 +745,8 @@ MWImage* creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask)
 		strcpy(image->ruta_mask, ruta_mask);
 	}
 
-	if(image->hBitmap == NULL || image->hBitmap_mask == NULL) {
+	if (image->hBitmap == NULL || image->hBitmap_mask == NULL)
+	{
 		free(image);
 		image = NULL;
 	}
@@ -860,14 +754,14 @@ MWImage* creaImagenYMascaraBMP(const char *ruta, const char *ruta_mask)
 	return image;
 }
 
-void eliminaImagen(MWImage *imagen)
+void eliminaImagen(MiniWinImage *imagen)
 {
 	DeleteObject(imagen->hBitmap);
 	DeleteObject(imagen->hBitmap_mask);
 	free(imagen);
 }
 
-void muestraImagen(MWImage *imagen)
+void muestraImagen(MiniWinImage *imagen)
 {
 	HGDIOBJ oldBitmap;
 	BITMAP bitmap;
@@ -967,7 +861,7 @@ void vredimensiona(int ancho, int alto)
 
 	frame_real(iWidth, iHeight, &w, &h);
 
-	//Centra la ventana
+	// Centra la ventana
 	xPos = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
 	yPos = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
 

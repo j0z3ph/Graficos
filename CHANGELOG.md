@@ -9,11 +9,14 @@ Los cambios principales hechos al proyecto se escribiran aqui.
 - [C/C++] Se corrige un error en la funcion `color_fondo` y `color_fondo_rgb` que generaba un parpadeo en la pantalla.
 - [C/C++] Se corrige un error en la funcion `muestraImagen` que hacia que las imagenes con mascara desaparecieran despues de un tiempo en ejecucion.
 - [C/C++] Se corrige un error en la funcion `muestraImagen` que no liberaba correctamente memoria en el caso de las imagenes sin mascara.
+- [C/C++] Se corrige un error en el manejo de las colas para los eventos keyDown y keyUp.
 
 ### Cambiado
 
+- [C/C++] Se cambia el orden del enumerador de teclas.
 - [C] Se cambian las funciones `creaImagenBMP` y `creaImagenYMascaraBMP` para devolver un puntero. Los objetos creados por la funcion ahora estan en memoria dinamica.
 - [C] Se cambia la funcion `eliminaImagen` para liberar la memoria dinamica creada por las funciones `creaImagenBMP` y `creaImagenYMascaraBMP`.
+- [C] Se modifica el nombre de la estructura de imagenes. Ahora se llama `MiniWinImage`, igual que su contraparte en C++.
 
 
 ## [0.2.2] - 2024-05-01

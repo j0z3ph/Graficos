@@ -17,9 +17,9 @@ int main()
     bool i_presionada = false;
     bool d_presionada = false;
     float x = 150, y = 150;
-    MWImage *hongo = creaImagenYMascaraBMP("hongoNoMask.bmp", "hongomask.bmp");
+    MiniWinImage *hongo = creaImagenYMascaraBMP("hongoNoMask.bmp", "hongomask.bmp");
     // MWImage hongo = creaImagenBMP("hongo.bmp");
-    MWImage *fondo = creaImagenBMP("fondo.bmp");
+    MiniWinImage *fondo = creaImagenBMP("fondo.bmp");
     hongo->pos_x = 150;
     hongo->pos_y = 150;
 
@@ -33,7 +33,7 @@ int main()
 
     t = tecla();
 
-    HANDLE thread = CreateThread(NULL, 0, ThreadFunc, NULL, 0, NULL);
+    //HANDLE thread = CreateThread(NULL, 0, ThreadFunc, NULL, 0, NULL);
 
     while (t != ESCAPE)
     {
