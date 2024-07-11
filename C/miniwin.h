@@ -147,6 +147,22 @@ typedef struct MiniWinImage
 	long alto;
 } MiniWinImage;
 
+typedef struct Node {
+	int value;
+	struct Node *next;
+} Node;
+
+typedef struct Queue {
+	Node *head;
+	Node *tail;
+} Queue;
+
+void queue_push(Queue **queue, int val);
+int queue_front(Queue **queue);
+int queue_pop(Queue **queue);
+bool queue_empty(Queue **queue);
+void queue_clear(Queue **queue);
+
 /**
  * @brief Permite cambiar al modo pantalla completa.
  * Nota: Las dimensiones de la ventana cambian.

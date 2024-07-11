@@ -82,7 +82,7 @@ int main()
         {
             d_presionada = true;
         }
-        if (t == ESPACIO)
+        if (t == LETRA_A)
         {
             aceleracion = JUMP;
             PlaySoundA("jump.wav", NULL, SND_FILENAME | SND_ASYNC);

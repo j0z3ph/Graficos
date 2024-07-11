@@ -53,133 +53,82 @@ int iWidthPrev;					// respaldo del ancho de la ventana antes de ir a fullscreen
 int iHeightPrev;				// respaldo del alto de la ventana antes de ir a fullscreen
 bool _fullscreen = false;		// modo fullscreen
 
-// queue constants
-static int *queue = NULL;
-static int q_cont = 0;
+// Queue stuff
+static Queue *keyDownQueue = NULL;
+static Queue *keyUpQueue = NULL;
 
-// second queue
-static int *queue2 = NULL;
-static int q_cont2 = 0;
+void queue_push(Queue **queue, int val)
+{
+	if (*queue == NULL)
+	{
+		*queue = (Queue *)malloc(sizeof(Queue));
+		(*queue)->head = (Node *)malloc(sizeof(Node));
+		(*queue)->head->value = val;
+		(*queue)->head->next = NULL;
+		(*queue)->tail = (*queue)->head;
+	}
+	else
+	{
+		(*queue)->tail->next = (Node *)malloc(sizeof(Node));
+		(*queue)->tail = (*queue)->tail->next;
+		(*queue)->tail->value = val;
+		(*queue)->tail->next = NULL;
+	}
+}
+
+int queue_front(Queue **queue)
+{
+	int val = -1;
+	if (*queue != NULL)
+	{
+		val = (*queue)->head->value;
+	}
+
+	return val;
+}
+
+int queue_pop(Queue **queue)
+{
+	int val = -1;
+	if (*queue != NULL)
+	{
+		val = (*queue)->head->value;
+		Node *tmp = (*queue)->head;
+		(*queue)->head = (*queue)->head->next;
+		free(tmp);
+		if ((*queue)->head == NULL)
+		{
+			free(*queue);
+			*queue = NULL;
+		}
+	}
+
+	return val;
+}
+
+bool queue_empty(Queue **queue)
+{
+	return *queue == NULL;
+}
+
+void queue_clear(Queue **queue)
+{
+	if (*queue != NULL)
+	{
+		Queue *q = *queue;
+		*queue = NULL;
+		Node *tmp;
+		while (q->head != NULL)
+		{
+			tmp = q->head;
+			q->head = q->head->next;
+			free(tmp);
+		}
+		free(q);
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-
-// QUEUE FUNCTIONS ////
-// Alguien que arregle esto!! //
-static void q_push(int val)
-{
-	q_cont++;
-	if (queue == NULL)
-	{
-		queue = (int *)malloc(q_cont * sizeof(int));
-	}
-	else
-	{
-		queue = (int *)realloc(queue, q_cont * sizeof(int));
-	}
-	queue[q_cont - 1] = val;
-}
-
-static int q_front()
-{
-	if (queue != NULL && q_cont != 0)
-	{
-		return queue[q_cont - 1];
-	}
-	else
-	{
-		return -1;
-	}
-}
-
-static int q_pop()
-{
-	int tmp;
-	if (queue != NULL && q_cont > 1)
-	{
-		q_cont--;
-		tmp = queue[q_cont];
-		queue = (int *)realloc(queue, q_cont * sizeof(int));
-	}
-	else if (queue != NULL)
-	{
-		q_cont--;
-		tmp = queue[q_cont];
-		free(queue);
-		queue = NULL;
-	}
-	else
-	{
-		tmp = -1;
-	}
-	return tmp;
-}
-
-static bool q_empty()
-{
-	if (q_cont > 0)
-		return false;
-	else
-		return true;
-}
-
-static void q_push2(int val)
-{
-	q_cont2++;
-	if (queue2 == NULL)
-	{
-		queue2 = (int *)malloc(q_cont2 * sizeof(int));
-	}
-	else
-	{
-		queue2 = (int *)realloc(queue2, q_cont2 * sizeof(int));
-	}
-	queue2[q_cont2 - 1] = val;
-}
-
-static int q_front2()
-{
-	if (queue2 != NULL && q_cont2 != 0)
-	{
-		return queue2[q_cont2 - 1];
-	}
-	else
-	{
-		return -1;
-	}
-}
-
-static int q_pop2()
-{
-	int tmp;
-	if (queue2 != NULL && q_cont2 > 1)
-	{
-		q_cont2--;
-		tmp = queue2[q_cont2];
-		queue2 = (int *)realloc(queue2, q_cont2 * sizeof(int));
-	}
-	else if (queue2 != NULL)
-	{
-		q_cont2--;
-		tmp = queue2[q_cont2];
-		free(queue2);
-		queue2 = NULL;
-	}
-	else
-	{
-		tmp = -1;
-	}
-	return tmp;
-}
-
-static bool q_empty2()
-{
-	if (q_cont2 > 0)
-		return false;
-	else
-		return true;
-}
-
-//////////////
 
 static VOID Thread(PVOID pvoid)
 {
@@ -417,7 +366,7 @@ static LRESULT CALLBACK WindowProcedure(HWND hWnd,
 		}
 
 		if (push_it)
-			q_push(wParam);
+			queue_push(&keyDownQueue, wParam);
 
 		break;
 	}
@@ -452,7 +401,7 @@ static LRESULT CALLBACK WindowProcedure(HWND hWnd,
 		}
 
 		if (push_it)
-			q_push2(wParam);
+			queue_push(&keyUpQueue, wParam);
 
 		break;
 	}
@@ -482,11 +431,10 @@ static COLORREF _back_color = RGB(255, 255, 255);
 
 int tecla()
 {
-	if (q_empty())
+	if (queue_empty(&keyDownQueue))
 		return NINGUNA;
 
-	int ret = q_front();
-	q_pop();
+	int ret = queue_pop(&keyDownQueue);
 	return ret;
 }
 
@@ -497,15 +445,12 @@ int teclaDown()
 
 int teclaUp()
 {
-	while (!q_empty())
-		q_pop();
+	queue_clear(&keyDownQueue);
 
-	if (q_empty2())
+	if (queue_empty(&keyUpQueue))
 		return NINGUNA;
 
-	int ret = q_front2();
-	q_pop2();
-
+	int ret = queue_pop(&keyUpQueue);
 	return ret;
 }
 

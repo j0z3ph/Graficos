@@ -10,6 +10,7 @@ Los cambios principales hechos al proyecto se escribiran aqui.
 - [C/C++] Se corrige un error en la funcion `muestraImagen` que hacia que las imagenes con mascara desaparecieran despues de un tiempo en ejecucion.
 - [C/C++] Se corrige un error en la funcion `muestraImagen` que no liberaba correctamente memoria en el caso de las imagenes sin mascara.
 - [C/C++] Se corrige un error en el manejo de las colas para los eventos keyDown y keyUp.
+- [C] Se reescribe el manejo de las colas. Ya funciona.
 
 ### Cambiado
 
