@@ -1,18 +1,18 @@
-MAIN=test.cpp
+MAIN=main.cpp
 COMPILER=g++
 APP=main.exe
-MINIWIN_H=miniwin.hpp
-MINIWIN_LIB=miniwin.o
-MINIWIN_SRC=miniwin.cpp
+GRAFICOS_H=graficos.hpp
+GRAFICOS_LIB=graficos.o
+GRAFICOS_SRC=graficos.cpp
 WIN_FLAGS=-mwindows
 run: $(APP)
 	./$(APP)
 
-$(APP): $(MAIN) $(MINIWIN_H) $(MINIWIN_LIB)
-	$(COMPILER) -o $(APP) $(MINIWIN_LIB) $(MAIN) $(WIN_FLAGS)
+$(APP): $(MAIN) $(GRAFICOS_H) $(GRAFICOS_LIB)
+	$(COMPILER) -o $(APP) $(GRAFICOS_LIB) $(MAIN) $(WIN_FLAGS)
 
-$(MINIWIN_LIB): $(MINIWIN_H) $(MINIWIN_SRC)
-	$(COMPILER) -c $(MINIWIN_SRC) -o $(MINIWIN_LIB)
+$(GRAFICOS_LIB): $(GRAFICOS_H) $(GRAFICOS_SRC)
+	$(COMPILER) -c $(GRAFICOS_SRC) -o $(GRAFICOS_LIB)
 
 clean: 
-	del $(APP) $(MINIWIN_LIB)
+	del $(APP) $(GRAFICOS_LIB)

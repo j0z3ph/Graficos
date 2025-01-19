@@ -9,11 +9,13 @@
  *
  */
 #include <iostream>
-#include "miniwin.hpp"
+#include <string>
+#include "graficos.hpp"
 #define GRAVITY 1
 #define JUMP -20
 
-using namespace miniwin;
+using namespace std;
+using namespace graficos;
 
 int main()
 {
@@ -21,85 +23,86 @@ int main()
     bool on = false;
     bool i_presionada = false;
     bool d_presionada = false;
-    float x = 150, y = 150;
-    MiniWinImage hongo("hongo.bmp", "hongomask.bmp");
-    MiniWinImage fondo("fondo.bmp");
-    hongo.posX(150);
-    hongo.posY(150);
+    int x = 150, y = 150;
+    Imagen *hongo;
+    Imagen *fondo;
+    try
+    {
+        hongo = new Imagen("hongo.bmp", "hongomask.bmp");
+        fondo = new Imagen("fondo.bmp");
+    }
+    catch (const GraficosException &e)
+    {
+        ventana.imprimeEnConsola(e.what());
+        return 1;
+    }
 
-    //hongo.alto(50);
-    //hongo.ancho(50);
+    ventana.tamanio(800, 600);
+    //ventana.titulo("Mi Primer Juego");
 
-    ventana(800, 600);
-    titulo("Mi Primer Juego");
+    ventana.colorFondo(COLORES.ROJO);
 
-    color_fondo(ROJO);
-
-    t = tecla();
-    while (t != ESCAPE)
+    t = ventana.teclaPresionada();
+    while (t != TECLAS.ESCAPE)
     {
         y += aceleracion;
         aceleracion += GRAVITY;
-        if (y + hongo.alto() > valto())
-            y = valto() - hongo.alto();
+        if (y + hongo->alto() > ventana.alto())
+            y = ventana.alto() - hongo->alto();
         if (i_presionada)
             x -= 10;
         if (x < 0)
             x = 0;
         if (d_presionada)
             x += 10;
-        if (x + hongo.ancho() > vancho())
-            x = vancho() - hongo.ancho();
+        if (x + hongo->ancho() > ventana.ancho())
+            x = ventana.ancho() - hongo->ancho();
 
-        borra();
-        muestraImagen(fondo);
-        color(NEGRO);
-        // texto(20,20,"Presione ESC para salir");
-        texto(20, 20, "Presione ESC para salir", 50, true, true, true, "Arial");
-        texto(50, 150, "Hola");
-
-        // color(VERDE);
-        // rectangulo_lleno(x,y,x+50,y+50);
-        hongo.posX(x);
-        hongo.posY(y);
+        ventana.limpiaVentana();
+        ventana.muestraImagen(0, 0, ventana.ancho(), ventana.alto(), fondo);
+        ventana.color(COLORES.ROJO);
+        ventana.texto(20, 20, "Presione ESC para salir", 50, "Arial", true, true, true);
+        ventana.texto(50, 150, "Hola");
 
         // Imagen TEST
-        muestraImagen(hongo);
+        ventana.muestraImagen(x, y, hongo);
 
-        refresca();
-        t = teclaDown();
+        ventana.actualizaVentana();
+        t = ventana.teclaPresionada();
 
-        if(t == RETURN) {
+        if (t == TECLAS.ENTER)
+        {
             on = !on;
-            fullscreen(on);
+            ventana.pantallaCompleta(on);
         }
 
-        if (t == IZQUIERDA)
+        if (t == TECLAS.IZQUIERDA)
         {
             i_presionada = true;
         }
-        if (t == DERECHA)
+        if (t == TECLAS.DERECHA)
         {
             d_presionada = true;
         }
-        if (t == ESPACIO)
+        if (t == TECLAS.ESPACIO)
         {
             aceleracion = JUMP;
         }
 
-        t = teclaUp();
-        if (t == IZQUIERDA)
+        t = ventana.teclaSoltada();
+        if (t == TECLAS.IZQUIERDA)
         {
             i_presionada = false;
         }
-        if (t == DERECHA)
+        if (t == TECLAS.DERECHA)
         {
             d_presionada = false;
         }
 
-        espera(1);
+        ventana.imprimeEnConsola("X=" + to_string(x) + ", Y=" + to_string(y) + "\n");
+        ventana.espera(1);
     }
-    
-    cierra();
+
+    ventana.cierra();
     return 0;
 }

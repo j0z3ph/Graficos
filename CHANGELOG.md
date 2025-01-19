@@ -2,6 +2,14 @@
 
 Los cambios principales hechos al proyecto se escribiran aqui.
 
+## [0.3.0] - 2025-01-18
+
+### Cambiado
+- [C/C++] Se cambio el nombre de la biblioteca a `graficos.h`, `graficos.hpp`, `graficos.c`, `graficos.cpp`.
+- [C/C++] Se refactorizo el codigo para tratar de tener un mejor orden y claridad.
+- [C/C++] Se agrego la funcion `imprimeEnConsola` la cual permite escribir mensajes en una terminal. Especialmente util para depuracion de codigo.
+- [C/C++] Debido a la refactorizacion, el codigo anterior ya no es compatible con la version actual.
+
 ## [0.2.3] - 2024-07-08
 
 ### Corregido
