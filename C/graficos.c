@@ -394,7 +394,7 @@ static bool validKey(const WPARAM *wParam)
 
 static VOID Thread(PVOID pvoid)
 {
-    //Sleep(50); // FIXME
+    // Sleep(50); // FIXME
     _main_();
 }
 
@@ -937,6 +937,56 @@ void imprimeEnConsola(const char *message)
         WriteConsoleA(stdOut, message, strlen(message), &written, NULL);
     }
 }
+
+
+// Estructura de Ventana
+
+const struct Ventana ventana = {
+    imprimeEnConsola,
+    pantallaCompleta,
+    colorFondo,
+    colorFondoRGB,
+    creaImagen,
+    creaImagenConMascara,
+    eliminaImagen,
+    muestraImagen,
+    muestraImagenEscalada,
+    altoImagen,
+    anchoImagen,
+    texto1,
+    texto2,
+    teclaSoltada,
+    teclaPresionada,
+    limpiaVentana,
+    actualizaVentana,
+    muestraMensaje,
+    muestraMensaje1,
+    muestraPregunta,
+    muestraPregunta1,
+    espera,
+    anchoVentana,
+    altoVentana,
+    tamanioVentana,
+    cierraVentana,
+    tituloVentana,
+    color,
+    colorRGB,
+    punto,
+    linea,
+    rectangulo,
+    rectanguloRelleno,
+    circulo,
+    circuloRelleno,
+    texto,
+    raton,
+    ratonEnVentana,
+    ratonX,
+    ratonY,
+    ratonBotones,
+    ratonBotonIzquierdo,
+    ratonBotonDerecho
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

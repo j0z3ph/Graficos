@@ -11,53 +11,53 @@ int main()
     bool d_presionada = false;
     int x = 150, y = 150;
     char msj[100];
-    Imagen *hongo = creaImagenConMascara("hongoNoMask.bmp", "hongomask.bmp");
+    Imagen *hongo = ventana.creaImagenConMascara("hongoNoMask.bmp", "hongomask.bmp");
     // MWImage hongo = creaImagenBMP("hongo.bmp");
-    Imagen *fondo = creaImagen("fondo.bmp");
+    Imagen *fondo = ventana.creaImagen("fondo.bmp");
     if (hongo == NULL || fondo == NULL)
     {
-        imprimeEnConsola("Imagenes no validas :(");
+        ventana.imprimeEnConsola("Imagenes no validas :(");
         return 0;
     }
 
-    tamanioVentana(800, 600);
-    tituloVentana("Mi Primer Juego");
+    ventana.tamanioVentana(800, 600);
+    ventana.tituloVentana("Mi Primer Juego");
 
-    colorFondoRGB(200, 190, 210);
+    ventana.colorFondoRGB(200, 190, 210);
 
-    t = teclaPresionada();
+    t = ventana.teclaPresionada();
     while (t != TECLAS.ESCAPE)
     {
         y += aceleracion;
         aceleracion += GRAVITY;
-        if (y + altoImagen(hongo) > altoVentana())
-            y = altoVentana() - altoImagen(hongo);
+        if (y + ventana.altoImagen(hongo) > ventana.altoVentana())
+            y = ventana.altoVentana() - ventana.altoImagen(hongo);
         if (i_presionada)
             x -= 10;
         if (x < 0)
             x = 0;
         if (d_presionada)
             x += 10;
-        if (x + anchoImagen(hongo) > anchoVentana())
-            x = anchoVentana() - anchoImagen(hongo);
+        if (x + ventana.anchoImagen(hongo) > ventana.anchoVentana())
+            x = ventana.anchoVentana() - ventana.anchoImagen(hongo);
 
-        limpiaVentana();
-        muestraImagenEscalada(0, 0, anchoVentana(), altoVentana(), fondo);
-        color(COLORES.ROJO);
+            ventana.limpiaVentana();
+            ventana.muestraImagenEscalada(0, 0, ventana.anchoVentana(), ventana.altoVentana(), fondo);
+            ventana.color(COLORES.ROJO);
         // texto(20,20,"Presione ESC para salir");
-        texto2(20, 20, "Presione ESC para salir", 50, "Arial", true, true, true);
-        texto(50, 150, "Hola");
+        ventana.texto2(20, 20, "Presione ESC para salir", 50, "Arial", true, true, true);
+        ventana.texto(50, 150, "Hola");
 
         // Imagen TEST
-        muestraImagen(x, y, hongo);
+        ventana.muestraImagen(x, y, hongo);
 
-        actualizaVentana();
-        t = teclaPresionada();
+        ventana.actualizaVentana();
+        t = ventana.teclaPresionada();
 
         if (t == TECLAS.ENTER)
         {
             on = !on;
-            pantallaCompleta(on);
+            ventana.pantallaCompleta(on);
         }
 
         if (t == TECLAS.IZQUIERDA)
@@ -73,7 +73,7 @@ int main()
             aceleracion = JUMP;
         }
 
-        t = teclaSoltada();
+        t = ventana.teclaSoltada();
         if (t == TECLAS.IZQUIERDA)
         {
             i_presionada = false;
@@ -84,13 +84,13 @@ int main()
         }
 
         sprintf(msj, "X=%i, Y=%i\n", x, y);
-        imprimeEnConsola(msj);
+        ventana.imprimeEnConsola(msj);
 
-        espera(1000 / 120);
+        ventana.espera(1);
     }
-    eliminaImagen(hongo);
-    eliminaImagen(fondo);
-    cierraVentana();
+    ventana.eliminaImagen(hongo);
+    ventana.eliminaImagen(fondo);
+    ventana.cierraVentana();
 
     return 0;
 }
