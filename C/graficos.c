@@ -30,6 +30,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #define _GRAFICOS_SOURCE_
 #define CLASS_NAME "GraficosXD"
@@ -923,7 +924,7 @@ void tituloVentana(const char *titulo)
     SetWindowTextA(hWnd, titulo);
 }
 
-void imprimeEnConsola(const char *message)
+void imprimeEnConsola(const char *format, ...)
 {
     HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
     if (stdOut == NULL || stdOut == INVALID_HANDLE_VALUE)
@@ -934,10 +935,17 @@ void imprimeEnConsola(const char *message)
     if (stdOut != NULL && stdOut != INVALID_HANDLE_VALUE)
     {
         DWORD written = 0;
-        WriteConsoleA(stdOut, message, strlen(message), &written, NULL);
+        static char buffer[4096];
+        va_list args;
+        va_start(args, format);
+        memset(buffer, 0, sizeof(buffer));
+        vsnprintf(buffer, sizeof(buffer), format, args);
+
+        WriteConsoleA(stdOut, buffer, strlen(buffer), &written, NULL);
+
+        va_end(args);
     }
 }
-
 
 // Estructura de Ventana
 
@@ -984,9 +992,7 @@ const struct Ventana ventana = {
     ratonY,
     ratonBotones,
     ratonBotonIzquierdo,
-    ratonBotonDerecho
-};
-
+    ratonBotonDerecho};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

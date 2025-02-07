@@ -41,9 +41,9 @@ int main()
         if (x + ventana.anchoImagen(hongo) > ventana.anchoVentana())
             x = ventana.anchoVentana() - ventana.anchoImagen(hongo);
 
-            ventana.limpiaVentana();
-            ventana.muestraImagenEscalada(0, 0, ventana.anchoVentana(), ventana.altoVentana(), fondo);
-            ventana.color(COLORES.ROJO);
+        ventana.limpiaVentana();
+        //ventana.muestraImagenEscalada(0, 0, ventana.anchoVentana(), ventana.altoVentana(), fondo);
+        ventana.color(COLORES.ROJO);
         // texto(20,20,"Presione ESC para salir");
         ventana.texto2(20, 20, "Presione ESC para salir", 50, "Arial", true, true, true);
         ventana.texto(50, 150, "Hola");
@@ -82,9 +82,7 @@ int main()
         {
             d_presionada = false;
         }
-
-        sprintf(msj, "X=%i, Y=%i\n", x, y);
-        ventana.imprimeEnConsola(msj);
+        ventana.imprimeEnConsola("X=%i, Y=%i\n", x, y);
 
         ventana.espera(1);
     }

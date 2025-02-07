@@ -21,7 +21,7 @@
 #ifndef _GRAFICOS_H_
 #define _GRAFICOS_H_
 
-#define _GRAFICOS_VERSION_ "Graficos 0.3.0"
+#define _GRAFICOS_VERSION_ "Graficos 0.3.1"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -116,9 +116,10 @@ extern const struct Ventana
 	 * @brief Imprime un mensaje en la consola.
 	 * @note Este metodo abre una nueva terminal.
 	 *
-	 * @param msj El mensaje que se desea imprimir
+	 * @param format El mensaje que se desea imprimir. Se siguen las
+	 * reglas de formato del printf. El limite son 4096 caracteres.
 	 */
-	void (*imprimeEnConsola)(const char *msj);
+	void (*imprimeEnConsola)(const char *format, ...);
 
 	/**
 	 * @brief Permite cambiar al modo pantalla completa.
