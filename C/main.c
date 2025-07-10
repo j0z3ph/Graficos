@@ -42,11 +42,21 @@ int main()
             x = ventana.anchoVentana() - ventana.anchoImagen(hongo);
 
         ventana.limpiaVentana();
+        //ventana.texto(550, 150, "Hola");
         //ventana.muestraImagenEscalada(0, 0, ventana.anchoVentana(), ventana.altoVentana(), fondo);
+        ventana.muestraImagen(0, 0, fondo);
+        //ventana.muestraImagen(0, 0, fondo);
+        
         ventana.color(COLORES.ROJO);
         // texto(20,20,"Presione ESC para salir");
         ventana.texto2(20, 20, "Presione ESC para salir", 50, "Arial", true, true, true);
         ventana.texto(50, 150, "Hola");
+
+        ventana.linea(200,200,300,200);
+
+        ventana.rectanguloRelleno(100,300,200,400);
+
+        ventana.circuloRelleno(100,100,10);
 
         // Imagen TEST
         ventana.muestraImagen(x, y, hongo);
@@ -82,7 +92,7 @@ int main()
         {
             d_presionada = false;
         }
-        ventana.imprimeEnConsola("X=%i, Y=%i\n", x, y);
+        //ventana.imprimeEnConsola("X=%i, Y=%i\n", x, y);
 
         ventana.espera(1);
     }

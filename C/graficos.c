@@ -290,11 +290,12 @@ static LRESULT CALLBACK WindowProcedure(HWND hWnd,
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-        SelectObject(hDCMem, hBitmap);
+        HGDIOBJ oldBitmap = SelectObject(hDCMem, hBitmap);
         if (hBitmap != NULL)
         {
             BitBlt(hdc, 0, 0, iWidth, iHeight, hDCMem, 0, 0, SRCCOPY);
         }
+        SelectObject(hDCMem, oldBitmap);
         EndPaint(hWnd, &ps);
         break;
     }
@@ -596,6 +597,9 @@ bool muestraPregunta1(const char *msj, const char *titulo)
 
 void limpiaVentana()
 {
+    
+    //newMemDC(iWidth, iHeight);
+    //UpdateWindow(hWnd);
     RECT R;
     SetRect(&R, 0, 0, iWidth, iHeight);
     HBRUSH hBrush = CreateSolidBrush(_back_color);
@@ -605,7 +609,9 @@ void limpiaVentana()
 
 void actualizaVentana()
 {
-    InvalidateRect(hWnd, NULL, FALSE);
+    //InvalidateRect(hWnd, NULL, FALSE);
+    //UpdateWindow(hWnd);
+    RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE);
 }
 
 void punto(int x, int y)
@@ -620,29 +626,21 @@ void linea(int x1, int y1, int x2, int y2)
     LineTo(hDCMem, x2, y2);
     EndPath(hDCMem);
     HPEN hPen = CreatePen(PS_SOLID, 1, _color);
-    SelectObject(hDCMem, hPen);
+    HGDIOBJ orig = SelectObject(hDCMem, hPen);
     StrokePath(hDCMem);
+    SelectObject(hDCMem, orig);
     DeleteObject(hPen);
 }
 
 static void _rect(int x1, int y1, int x2, int y2, bool fill)
 {
-    HPEN hPen = CreatePen(PS_SOLID, 1, _color);
-    HGDIOBJ orig = SelectObject(hDCMem, hPen);
-    BeginPath(hDCMem);
-    MoveToEx(hDCMem, x1, y1, NULL);
-    LineTo(hDCMem, x1, y2); // |
-    LineTo(hDCMem, x2, y2); // |_
-    LineTo(hDCMem, x2, y1); // |_|
-                            //  _
-    LineTo(hDCMem, x1, y1); // |_|
-    EndPath(hDCMem);
+    RECT rect = {x1, y1, x2, y2};
+    HBRUSH brush = CreateSolidBrush(_color);
     if (fill)
-        FillPath(hDCMem);
+        FillRect(hDCMem, &rect, brush);
     else
-        StrokePath(hDCMem);
-    SelectObject(hDCMem, orig);
-    DeleteObject(hPen);
+        FrameRect(hDCMem, &rect, brush);
+    DeleteObject(brush);
 }
 
 void rectangulo(int x1, int y1, int x2, int y2)
@@ -659,18 +657,22 @@ static void _circ(int x, int y, int radio, bool fill)
 {
     HPEN hPen = CreatePen(PS_SOLID, 1, _color);
     HGDIOBJ orig = SelectObject(hDCMem, hPen);
-    BeginPath(hDCMem);
-    Arc(hDCMem, (x - radio), (y - radio),
-        (x + radio), (y + radio),
-        (x - radio), (y - radio),
-        (x - radio), (y - radio));
-    EndPath(hDCMem);
+
     if (fill)
-        FillPath(hDCMem);
+    {
+        HBRUSH brush = CreateSolidBrush(_color);
+        SelectObject(hDCMem, brush);
+        Ellipse(hDCMem, x, y, x + radio + radio, y + radio + radio);
+        DeleteObject(brush);
+    }
     else
-        StrokePath(hDCMem);
+    {
+        SelectObject(hDCMem, GetStockObject(NULL_BRUSH));
+        Ellipse(hDCMem, x, y, x + radio + radio, y + radio + radio);
+    }
     SelectObject(hDCMem, orig);
     DeleteObject(hPen);
+    
 }
 
 void circulo(int x, int y, int radio)
@@ -769,33 +771,36 @@ static void _renderImage(int x, int y, int w, int h, const Imagen *imagen)
         HGDIOBJ oldBitmap;
         BITMAP bitmap;
         HDC imagehdc;
-
+        
         if (imagen->hBitmap_mask != NULL)
         {
-            imagehdc = CreateCompatibleDC(NULL);
+            imagehdc = CreateCompatibleDC(hDCMem);
             GetObject(imagen->hBitmap_mask, sizeof(bitmap), &bitmap);
             oldBitmap = SelectObject(imagehdc, imagen->hBitmap_mask);
             StretchBlt(hDCMem, x, y, w, h,
                        imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
+            //BitBlt(hDCMem, x, y, w, h, imagehdc, 0, 0, SRCAND);
             if (imagen->hBitmap != NULL)
             {
                 SelectObject(imagehdc, imagen->hBitmap);
                 StretchBlt(hDCMem, x, y, w, h,
                            imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT);
+                //BitBlt(hDCMem, x, y, w, h, imagehdc, 0, 0, SRCPAINT);
             }
             SelectObject(imagehdc, oldBitmap);
-            DeleteObject(imagehdc);
+            DeleteDC(imagehdc);
             DeleteObject(oldBitmap);
         }
         else if (imagen->hBitmap != NULL)
         {
-            imagehdc = CreateCompatibleDC(NULL);
+            imagehdc = CreateCompatibleDC(hDCMem);
             GetObject(imagen->hBitmap, sizeof(bitmap), &bitmap);
             oldBitmap = SelectObject(imagehdc, imagen->hBitmap);
             StretchBlt(hDCMem, x, y, w, h,
                        imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+            //BitBlt(hDCMem, x, y, w, h, imagehdc, 0, 0, SRCCOPY);
             SelectObject(imagehdc, oldBitmap);
-            DeleteObject(imagehdc);
+            DeleteDC(imagehdc);
             DeleteObject(oldBitmap);
         }
     }

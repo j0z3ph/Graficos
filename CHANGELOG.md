@@ -2,6 +2,12 @@
 
 Los cambios principales hechos al proyecto se escribiran aqui.
 
+## [0.3.2] - 2025-07-09
+
+### Corregido
+
+- [C] Se corrige un error en las funciones de dibujo de figuras con relleno. Antes se dibujaban las figuras con relleno color blanco. Ahora se dibujan las figuras con relleno de color de la brocha actual.
+
 ## [0.3.0] - 2025-01-18
 
 ### Cambiado
