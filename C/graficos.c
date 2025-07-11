@@ -104,6 +104,9 @@ struct imagen
     HGDIOBJ hBitmap_mask;
     int alto;
     int ancho;
+
+    HDC hdcimg;
+    HDC hdcimg_mask;
 };
 
 typedef struct Node
@@ -396,7 +399,7 @@ static bool validKey(const WPARAM *wParam)
 
 static VOID Thread(PVOID pvoid)
 {
-    // Sleep(50); // FIXME
+    Sleep(50); // FIXME
     _main_();
 }
 
@@ -430,6 +433,7 @@ static void newMemDC(int w, int h)
     hBitmap = CreateCompatibleBitmap(hDC, w, h);
     SelectObject(hDCMem, hBitmap);
     SetBkMode(hDCMem, TRANSPARENT);
+    ReleaseDC(hWnd, hDC);
 }
 
 // Funciones para la Cola
@@ -510,6 +514,29 @@ static void queue_clear(Queue **queue)
 //   Funciones del API
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+void imprimeEnConsola(const char *format, ...)
+{
+    HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (stdOut == NULL || stdOut == INVALID_HANDLE_VALUE)
+    {
+        AllocConsole();
+        stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    }
+    if (stdOut != NULL && stdOut != INVALID_HANDLE_VALUE)
+    {
+        DWORD written = 0;
+        static char buffer[4096];
+        va_list args;
+        va_start(args, format);
+        memset(buffer, 0, sizeof(buffer));
+        vsnprintf(buffer, sizeof(buffer), format, args);
+
+        WriteConsoleA(stdOut, buffer, strlen(buffer), &written, NULL);
+
+        va_end(args);
+    }
+}
 
 int teclaPresionada()
 {
@@ -597,9 +624,6 @@ bool muestraPregunta1(const char *msj, const char *titulo)
 
 void limpiaVentana()
 {
-    
-    //newMemDC(iWidth, iHeight);
-    //UpdateWindow(hWnd);
     RECT R;
     SetRect(&R, 0, 0, iWidth, iHeight);
     HBRUSH hBrush = CreateSolidBrush(_back_color);
@@ -609,9 +633,7 @@ void limpiaVentana()
 
 void actualizaVentana()
 {
-    //InvalidateRect(hWnd, NULL, FALSE);
-    //UpdateWindow(hWnd);
-    RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE);
+    RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
 }
 
 void punto(int x, int y)
@@ -672,7 +694,6 @@ static void _circ(int x, int y, int radio, bool fill)
     }
     SelectObject(hDCMem, orig);
     DeleteObject(hPen);
-    
 }
 
 void circulo(int x, int y, int radio)
@@ -714,24 +735,6 @@ void texto2(int x, int y, const char *texto, int tamanioFuente, const char *fuen
     DeleteObject(hf);
 }
 
-Imagen *creaImagen(const char *ruta)
-{
-    Imagen *image = (Imagen *)malloc(sizeof(Imagen));
-    BITMAP bitmap;
-    image->alto = 0;
-    image->ancho = 0;
-    image->hBitmap = (HBITMAP)LoadImageA(NULL, ruta, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    if (image->hBitmap == NULL)
-    {
-        free(image);
-        image = NULL;
-    }
-    GetObject(image->hBitmap, sizeof(bitmap), &bitmap);
-    image->ancho = bitmap.bmWidth;
-    image->alto = bitmap.bmHeight;
-    return image;
-}
-
 Imagen *creaImagenConMascara(const char *ruta, const char *ruta_mask)
 {
     Imagen *image = (Imagen *)malloc(sizeof(Imagen));
@@ -750,7 +753,18 @@ Imagen *creaImagenConMascara(const char *ruta, const char *ruta_mask)
     image->ancho = bitmap.bmWidth;
     image->alto = bitmap.bmHeight;
 
+    image->hdcimg = CreateCompatibleDC(NULL);
+    SelectObject(image->hdcimg, image->hBitmap);
+
+    image->hdcimg_mask = CreateCompatibleDC(NULL);
+    SelectObject(image->hdcimg_mask, image->hBitmap_mask);
+
     return image;
+}
+
+Imagen *creaImagen(const char *ruta)
+{
+    return creaImagenConMascara(ruta, ruta);
 }
 
 void eliminaImagen(Imagen *imagen)
@@ -759,6 +773,8 @@ void eliminaImagen(Imagen *imagen)
     {
         DeleteObject(imagen->hBitmap);
         DeleteObject(imagen->hBitmap_mask);
+        DeleteDC(imagen->hdcimg);
+        DeleteDC(imagen->hdcimg_mask);
         free(imagen);
         imagen = NULL;
     }
@@ -768,40 +784,33 @@ static void _renderImage(int x, int y, int w, int h, const Imagen *imagen)
 {
     if (imagen != NULL)
     {
-        HGDIOBJ oldBitmap;
-        BITMAP bitmap;
-        HDC imagehdc;
-        
+        SetStretchBltMode(hDCMem, COLORONCOLOR);
+
         if (imagen->hBitmap_mask != NULL)
         {
-            imagehdc = CreateCompatibleDC(hDCMem);
-            GetObject(imagen->hBitmap_mask, sizeof(bitmap), &bitmap);
-            oldBitmap = SelectObject(imagehdc, imagen->hBitmap_mask);
-            StretchBlt(hDCMem, x, y, w, h,
-                       imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
-            //BitBlt(hDCMem, x, y, w, h, imagehdc, 0, 0, SRCAND);
+            if (imagen->alto == h && imagen->ancho == w)
+            {
+                BitBlt(hDCMem, x, y, w, h,
+                       imagen->hdcimg_mask, 0, 0, SRCAND);
+            }
+            else
+            {
+                StretchBlt(hDCMem, x, y, w, h,
+                           imagen->hdcimg_mask, 0, 0, imagen->ancho, imagen->alto, SRCAND);
+            }
             if (imagen->hBitmap != NULL)
             {
-                SelectObject(imagehdc, imagen->hBitmap);
-                StretchBlt(hDCMem, x, y, w, h,
-                           imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT);
-                //BitBlt(hDCMem, x, y, w, h, imagehdc, 0, 0, SRCPAINT);
+                if (imagen->alto == h && imagen->ancho == w)
+                {
+                    BitBlt(hDCMem, x, y, w, h,
+                               imagen->hdcimg, 0, 0, SRCPAINT);
+                }
+                else
+                {
+                    StretchBlt(hDCMem, x, y, w, h,
+                               imagen->hdcimg, 0, 0, imagen->ancho, imagen->alto, SRCPAINT);
+                }
             }
-            SelectObject(imagehdc, oldBitmap);
-            DeleteDC(imagehdc);
-            DeleteObject(oldBitmap);
-        }
-        else if (imagen->hBitmap != NULL)
-        {
-            imagehdc = CreateCompatibleDC(hDCMem);
-            GetObject(imagen->hBitmap, sizeof(bitmap), &bitmap);
-            oldBitmap = SelectObject(imagehdc, imagen->hBitmap);
-            StretchBlt(hDCMem, x, y, w, h,
-                       imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
-            //BitBlt(hDCMem, x, y, w, h, imagehdc, 0, 0, SRCCOPY);
-            SelectObject(imagehdc, oldBitmap);
-            DeleteDC(imagehdc);
-            DeleteObject(oldBitmap);
         }
     }
 }
@@ -927,29 +936,6 @@ void cierraVentana()
 void tituloVentana(const char *titulo)
 {
     SetWindowTextA(hWnd, titulo);
-}
-
-void imprimeEnConsola(const char *format, ...)
-{
-    HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (stdOut == NULL || stdOut == INVALID_HANDLE_VALUE)
-    {
-        AllocConsole();
-        stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    }
-    if (stdOut != NULL && stdOut != INVALID_HANDLE_VALUE)
-    {
-        DWORD written = 0;
-        static char buffer[4096];
-        va_list args;
-        va_start(args, format);
-        memset(buffer, 0, sizeof(buffer));
-        vsnprintf(buffer, sizeof(buffer), format, args);
-
-        WriteConsoleA(stdOut, buffer, strlen(buffer), &written, NULL);
-
-        va_end(args);
-    }
 }
 
 // Estructura de Ventana

@@ -12,8 +12,9 @@ int main()
     int x = 150, y = 150;
     char msj[100];
     Imagen *hongo = ventana.creaImagenConMascara("hongoNoMask.bmp", "hongomask.bmp");
-    // MWImage hongo = creaImagenBMP("hongo.bmp");
+    //Imagen *hongo = ventana.creaImagen("hongoNoMask.bmp");
     Imagen *fondo = ventana.creaImagen("fondo.bmp");
+    //Imagen *fondo = ventana.creaImagenConMascara("fondo.bmp", "fondo.bmp");
     if (hongo == NULL || fondo == NULL)
     {
         ventana.imprimeEnConsola("Imagenes no validas :(");
@@ -43,12 +44,11 @@ int main()
 
         ventana.limpiaVentana();
         //ventana.texto(550, 150, "Hola");
-        //ventana.muestraImagenEscalada(0, 0, ventana.anchoVentana(), ventana.altoVentana(), fondo);
-        ventana.muestraImagen(0, 0, fondo);
+        ventana.muestraImagenEscalada(0, 0, ventana.anchoVentana(), ventana.altoVentana(), fondo);
+        //ventana.muestraImagen(0, 0, fondo);
         //ventana.muestraImagen(0, 0, fondo);
         
         ventana.color(COLORES.ROJO);
-        // texto(20,20,"Presione ESC para salir");
         ventana.texto2(20, 20, "Presione ESC para salir", 50, "Arial", true, true, true);
         ventana.texto(50, 150, "Hola");
 
