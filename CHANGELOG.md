@@ -6,10 +6,10 @@ Los cambios principales hechos al proyecto se escribiran aqui.
 
 ### Corregido
 
-- [C] Se corrige un error en las funciones de dibujo de figuras con relleno. Antes se dibujaban las figuras con relleno color blanco. Ahora se dibujan las figuras con relleno de color de la brocha actual.
-- [C] Se corrige un error en el render de imagenes de fondo que provocaba que algunas veces no se mostrara la imagen de fondo. 
-- [C] Se cambio el metodo de escalado para mejorar la calidad.
-- [C] Se corrigio una fuga de memoria en el metodo de creacion de nuevos HDC.
+- [C/C++] Se corrige un error en las funciones de dibujo de figuras con relleno. Antes se dibujaban las figuras con relleno color blanco. Ahora se dibujan las figuras con relleno de color de la brocha actual.
+- [C/C++] Se corrige un error en el render de imagenes de fondo que provocaba que algunas veces no se mostrara la imagen de fondo. 
+- [C/C++] Se cambio el metodo de escalado para mejorar la calidad.
+- [C/C++] Se corrigio una fuga de memoria en el metodo de creacion de nuevos HDC.
 
 ## [0.3.0] - 2025-01-18
 

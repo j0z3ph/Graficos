@@ -322,7 +322,7 @@ static bool validKey(const WPARAM &wParam)
 
 static VOID Thread(PVOID pvoid)
 {
-    // Sleep(50); // FIXME
+    Sleep(50); // FIXME
     _main_();
 }
 
@@ -356,42 +356,37 @@ static void newMemDC(int w, int h)
     variables.hBitmap = CreateCompatibleBitmap(hDC, w, h);
     SelectObject(variables.hDCMem, variables.hBitmap);
     SetBkMode(variables.hDCMem, TRANSPARENT);
+    ReleaseDC(variables.hWnd, hDC);
 }
 
 static void _rect(int x1, int y1, int x2, int y2, bool fill)
 {
-    HPEN hPen = CreatePen(PS_SOLID, 1, variables._color);
-    HGDIOBJ orig = SelectObject(variables.hDCMem, hPen);
-    BeginPath(variables.hDCMem);
-    MoveToEx(variables.hDCMem, x1, y1, NULL);
-    LineTo(variables.hDCMem, x1, y2); // |
-    LineTo(variables.hDCMem, x2, y2); // |_
-    LineTo(variables.hDCMem, x2, y1); // |_|
-                                      //  _
-    LineTo(variables.hDCMem, x1, y1); // |_|
-    EndPath(variables.hDCMem);
+    RECT rect = {x1, y1, x2, y2};
+    HBRUSH brush = CreateSolidBrush(variables._color);
     if (fill)
-        FillPath(variables.hDCMem);
+        FillRect(variables.hDCMem, &rect, brush);
     else
-        StrokePath(variables.hDCMem);
-    SelectObject(variables.hDCMem, orig);
-    DeleteObject(hPen);
+        FrameRect(variables.hDCMem, &rect, brush);
+    DeleteObject(brush);
 }
 
 static void _circ(int x, int y, int radio, bool fill)
 {
     HPEN hPen = CreatePen(PS_SOLID, 1, variables._color);
     HGDIOBJ orig = SelectObject(variables.hDCMem, hPen);
-    BeginPath(variables.hDCMem);
-    Arc(variables.hDCMem, (x - radio), (y - radio),
-        (x + radio), (y + radio),
-        (x - radio), (y - radio),
-        (x - radio), (y - radio));
-    EndPath(variables.hDCMem);
+
     if (fill)
-        FillPath(variables.hDCMem);
+    {
+        HBRUSH brush = CreateSolidBrush(variables._color);
+        SelectObject(variables.hDCMem, brush);
+        Ellipse(variables.hDCMem, x, y, x + radio + radio, y + radio + radio);
+        DeleteObject(brush);
+    }
     else
-        StrokePath(variables.hDCMem);
+    {
+        SelectObject(variables.hDCMem, GetStockObject(NULL_BRUSH));
+        Ellipse(variables.hDCMem, x, y, x + radio + radio, y + radio + radio);
+    }
     SelectObject(variables.hDCMem, orig);
     DeleteObject(hPen);
 }
@@ -466,20 +461,8 @@ namespace graficos
 
 #pragma region Imagen class
 
-    Imagen::Imagen(std::string ruta)
+    Imagen::Imagen(std::string ruta) : Imagen(ruta, ruta)
     {
-        BITMAP bitmap;
-
-        this->_hBitmap = (HBITMAP)LoadImageA(NULL, ruta.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        if (this->_hBitmap == NULL)
-        {
-            throw GraficosException("No fue posible cargar la imagen '" + ruta + "'.");
-        }
-        GetObject(this->_hBitmap, sizeof(bitmap), &bitmap);
-        this->_alto = bitmap.bmHeight;
-        this->_ancho = bitmap.bmWidth;
-
-        this->_hBitmapMask = NULL;
     }
 
     Imagen::Imagen(std::string ruta, std::string ruta_mask)
@@ -501,12 +484,20 @@ namespace graficos
         {
             throw GraficosException("No fue posible cargar la mascara '" + ruta_mask + "'.");
         }
+
+        this->_hdcimg = CreateCompatibleDC(NULL);
+        SelectObject(this->_hdcimg, this->_hBitmap);
+
+        this->_hdcimg_mask = CreateCompatibleDC(NULL);
+        SelectObject(this->_hdcimg_mask, this->_hBitmapMask);
     }
 
     Imagen::~Imagen()
     {
         DeleteObject(this->_hBitmap);
         DeleteObject(this->_hBitmapMask);
+        DeleteDC(this->_hdcimg);
+        DeleteDC(this->_hdcimg_mask);
     }
 
     int Imagen::ancho()
@@ -520,355 +511,352 @@ namespace graficos
 
     void _renderImage(int x, int y, int w, int h, graficos::Imagen &imagen)
     {
-
-        HGDIOBJ oldBitmap;
-        BITMAP bitmap;
-        HDC imagehdc;
-
         if (imagen._hBitmapMask != NULL)
         {
-            imagehdc = CreateCompatibleDC(NULL);
-            GetObject(imagen._hBitmapMask, sizeof(bitmap), &bitmap);
-            oldBitmap = SelectObject(imagehdc, imagen._hBitmapMask);
-            StretchBlt(variables.hDCMem, x, y, w, h,
-                       imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
-            if (imagen._hBitmap != NULL)
+            SetStretchBltMode(variables.hDCMem, COLORONCOLOR);
+
+            if (imagen._hBitmapMask != NULL)
             {
-                SelectObject(imagehdc, imagen._hBitmap);
-                StretchBlt(variables.hDCMem, x, y, w, h,
-                           imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT);
+                if (imagen._alto == h && imagen._ancho == w)
+                {
+                    BitBlt(variables.hDCMem, x, y, w, h,
+                           imagen._hdcimg_mask, 0, 0, SRCAND);
+                }
+                else
+                {
+                    StretchBlt(variables.hDCMem, x, y, w, h,
+                               imagen._hdcimg_mask, 0, 0, imagen._ancho, imagen._alto, SRCAND);
+                }
+                if (imagen._hBitmap != NULL)
+                {
+                    if (imagen._alto == h && imagen._ancho == w)
+                    {
+                        BitBlt(variables.hDCMem, x, y, w, h,
+                               imagen._hdcimg, 0, 0, SRCPAINT);
+                    }
+                    else
+                    {
+                        StretchBlt(variables.hDCMem, x, y, w, h,
+                                   imagen._hdcimg, 0, 0, imagen._ancho, imagen._alto, SRCPAINT);
+                    }
+                }
             }
-            SelectObject(imagehdc, oldBitmap);
-            DeleteObject(imagehdc);
-            DeleteObject(oldBitmap);
-        }
-        else if (imagen._hBitmap != NULL)
-        {
-            imagehdc = CreateCompatibleDC(NULL);
-            GetObject(imagen._hBitmap, sizeof(bitmap), &bitmap);
-            oldBitmap = SelectObject(imagehdc, imagen._hBitmap);
-            StretchBlt(variables.hDCMem, x, y, w, h,
-                       imagehdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
-            SelectObject(imagehdc, oldBitmap);
-            DeleteObject(imagehdc);
-            DeleteObject(oldBitmap);
         }
     }
 
 #pragma endregion
 
 #pragma region GraficosAPI class
-    int GraficosAPI::teclaPresionada()
-    {
-        if (variables._teclas.empty())
-            return TECLAS.NINGUNA;
-        int ret = variables._teclas.front();
-        variables._teclas.pop();
-        return ret;
-    }
-
-    int GraficosAPI::teclaSoltada()
-    {
-        while (!variables._teclas.empty())
-            variables._teclas.pop();
-
-        if (variables._teclasUp.empty())
-            return TECLAS.NINGUNA;
-
-        int ret = variables._teclasUp.front();
-        variables._teclasUp.pop();
-
-        return ret;
-    }
-
-    bool GraficosAPI::raton(int &x, int &y)
-    {
-        if (!variables._raton_dentro)
-            return false;
-
-        x = variables._xraton;
-        y = variables._yraton;
-        return true;
-    }
-
-    bool GraficosAPI::ratonEnVentana()
-    {
-        return variables._raton_dentro;
-    }
-
-    int GraficosAPI::ratonX()
-    {
-        return variables._xraton;
-    }
-
-    int GraficosAPI::ratonY()
-    {
-        return variables._yraton;
-    }
-
-    void GraficosAPI::ratonBotones(bool &izq, bool &der)
-    {
-        izq = variables._bot_izq;
-        der = variables._bot_der;
-    }
-
-    bool GraficosAPI::ratonBotonIzquierdo()
-    {
-        return variables._bot_izq;
-    }
-
-    bool GraficosAPI::ratonBotonDerecho()
-    {
-        return variables._bot_der;
-    }
-
-    void GraficosAPI::espera(int miliseg)
-    {
-        Sleep(miliseg);
-    }
-
-    void GraficosAPI::muestraMensaje(const std::string &msj)
-    {
-        MessageBox(variables.hWnd, msj.c_str(), "Mensaje...", MB_OK);
-    }
-
-    void GraficosAPI::muestraMensaje(const std::string &msj, const std::string &titulo)
-    {
-        MessageBox(variables.hWnd, msj.c_str(), titulo.c_str(), MB_OK);
-    }
-
-    bool GraficosAPI::muestraPregunta(const std::string &msj)
-    {
-        return MessageBox(variables.hWnd, msj.c_str(), "Pregunta...", MB_OKCANCEL) == IDOK;
-    }
-
-    bool GraficosAPI::muestraPregunta(const std::string &msj, const std::string &titulo)
-    {
-        return MessageBox(variables.hWnd, msj.c_str(), titulo.c_str(), MB_OKCANCEL) == IDOK;
-    }
-
-    void GraficosAPI::limpiaVentana()
-    {
-        RECT R;
-        SetRect(&R, 0, 0, variables.iWidth, variables.iHeight);
-        HBRUSH hBrush = CreateSolidBrush(variables._back_color);
-        FillRect(variables.hDCMem, &R, hBrush);
-        DeleteObject(hBrush);
-    }
-
-    void GraficosAPI::actualizaVentana()
-    {
-        InvalidateRect(variables.hWnd, NULL, FALSE);
-    }
-
-    void GraficosAPI::punto(int x, int y)
-    {
-        SetPixel(variables.hDCMem, x, y, variables._color);
-    }
-
-    void GraficosAPI::linea(int x1, int y1, int x2, int y2)
-    {
-        BeginPath(variables.hDCMem);
-        MoveToEx(variables.hDCMem, x1, y1, NULL);
-        LineTo(variables.hDCMem, x2, y2);
-        EndPath(variables.hDCMem);
-        HPEN hPen = CreatePen(PS_SOLID, 1, variables._color);
-        SelectObject(variables.hDCMem, hPen);
-        StrokePath(variables.hDCMem);
-        DeleteObject(hPen);
-    }
-
-    void GraficosAPI::rectangulo(int x1, int y1, int x2, int y2)
-    {
-        _rect(x1, y1, x2, y2, false);
-    }
-
-    void GraficosAPI::rectanguloRelleno(int x1, int y1, int x2, int y2)
-    {
-        _rect(x1, y1, x2, y2, true);
-    }
-
-    void GraficosAPI::circulo(int x, int y, int radio)
-    {
-        _circ(x, y, radio, false);
-    }
-
-    void GraficosAPI::circuloRelleno(int x, int y, int radio)
-    {
-        _circ(x, y, radio, true);
-    }
-
-    void GraficosAPI::texto(int x, int y, const std::string &texto)
-    {
-        SetTextColor(variables.hDCMem, variables._color);
-        TextOut(variables.hDCMem, x, y, texto.c_str(), texto.size());
-    }
-
-    void GraficosAPI::texto(int x, int y, const std::string &texto, int tamanioFuente, const std::string &fuente,
-                            bool italica, bool negrita, bool subrayada)
-    {
-        HFONT hf, hforiginal;
-        hf = CreateFont(tamanioFuente, 0, 0, 0, (negrita ? FW_BOLD : FW_NORMAL), italica, subrayada, 0, 0, 0, 0, 0, 0, fuente.c_str());
-        hforiginal = (HFONT)SelectObject(variables.hDCMem, hf);
-        SetTextColor(variables.hDCMem, variables._color);
-        TextOut(variables.hDCMem, x, y, texto.c_str(), texto.size());
-        SelectObject(variables.hDCMem, hforiginal);
-        DeleteObject(hf);
-    }
-
-    void GraficosAPI::muestraImagen(int x, int y, Imagen &imagen)
-    {
-        _renderImage(x, y, imagen.ancho(), imagen.alto(), imagen);
-    }
-
-    void GraficosAPI::muestraImagen(int x, int y, Imagen *imagen)
-    {
-        _renderImage(x, y, imagen->ancho(), imagen->alto(), *imagen);
-    }
-
-    void GraficosAPI::muestraImagen(int x, int y, int ancho, int alto, Imagen &imagen)
-    {
-        _renderImage(x, y, ancho, alto, imagen);
-    }
-
-    void GraficosAPI::muestraImagen(int x, int y, int ancho, int alto, Imagen *imagen)
-    {
-        _renderImage(x, y, ancho, alto, *imagen);
-    }
-
-    void GraficosAPI::color(int c)
-    {
-        if (c >= 0 && c <= 7)
-            variables._color = variables._colores[c];
-        else
-            variables._color = variables._colores[0];
-    }
-
-    void GraficosAPI::color(UINT8 r, UINT8 g, UINT8 b)
-    {
-        variables._color = RGB(r, g, b);
-    }
-
-    void GraficosAPI::colorFondo(int c)
-    {
-        if (c >= 0 && c <= 7)
-            variables._back_color = variables._colores[c];
-        else
-            variables._back_color = variables._colores[0];
-    }
-
-    void GraficosAPI::colorFondo(UINT8 r, UINT8 g, UINT8 b)
-    {
-        variables._back_color = RGB(r, g, b);
-    }
-
-    int GraficosAPI::ancho()
-    {
-        return variables.iWidth;
-    }
-
-    int GraficosAPI::alto()
-    {
-        return variables.iHeight;
-    }
-
-    void GraficosAPI::tamanio(int ancho, int alto)
-    {
-        variables.iWidth = ancho;
-        variables.iHeight = alto;
-        int w, h;
-        int xPos;
-        int yPos;
-
-        frame_real(variables.iWidth, variables.iHeight, w, h);
-
-        // Centra la ventana
-        xPos = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
-        yPos = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
-
-        SetWindowPos(variables.hWnd, HWND_TOP, xPos, yPos, w, h, SWP_FRAMECHANGED);
-        newMemDC(w, h);
-    }
-
-    void GraficosAPI::pantallaCompleta(bool fullscreenOn)
-    {
-        DWORD dwStyle = GetWindowLong(variables.hWnd, GWL_STYLE);
-        if (fullscreenOn && !variables._fullscreen)
+        int GraficosAPI::teclaPresionada()
         {
-            MONITORINFO mi = {sizeof(mi)};
-            if (GetWindowPlacement(variables.hWnd, &variables.g_wpPrev) &&
-                GetMonitorInfo(MonitorFromWindow(variables.hWnd, MONITOR_DEFAULTTOPRIMARY), &mi))
+            if (variables._teclas.empty())
+                return TECLAS.NINGUNA;
+            int ret = variables._teclas.front();
+            variables._teclas.pop();
+            return ret;
+        }
+
+        int GraficosAPI::teclaSoltada()
+        {
+            while (!variables._teclas.empty())
+                variables._teclas.pop();
+
+            if (variables._teclasUp.empty())
+                return TECLAS.NINGUNA;
+
+            int ret = variables._teclasUp.front();
+            variables._teclasUp.pop();
+
+            return ret;
+        }
+
+        bool GraficosAPI::raton(int &x, int &y)
+        {
+            if (!variables._raton_dentro)
+                return false;
+
+            x = variables._xraton;
+            y = variables._yraton;
+            return true;
+        }
+
+        bool GraficosAPI::ratonEnVentana()
+        {
+            return variables._raton_dentro;
+        }
+
+        int GraficosAPI::ratonX()
+        {
+            return variables._xraton;
+        }
+
+        int GraficosAPI::ratonY()
+        {
+            return variables._yraton;
+        }
+
+        void GraficosAPI::ratonBotones(bool &izq, bool &der)
+        {
+            izq = variables._bot_izq;
+            der = variables._bot_der;
+        }
+
+        bool GraficosAPI::ratonBotonIzquierdo()
+        {
+            return variables._bot_izq;
+        }
+
+        bool GraficosAPI::ratonBotonDerecho()
+        {
+            return variables._bot_der;
+        }
+
+        void GraficosAPI::espera(int miliseg)
+        {
+            Sleep(miliseg);
+        }
+
+        void GraficosAPI::muestraMensaje(const std::string &msj)
+        {
+            MessageBox(variables.hWnd, msj.c_str(), "Mensaje...", MB_OK);
+        }
+
+        void GraficosAPI::muestraMensaje(const std::string &msj, const std::string &titulo)
+        {
+            MessageBox(variables.hWnd, msj.c_str(), titulo.c_str(), MB_OK);
+        }
+
+        bool GraficosAPI::muestraPregunta(const std::string &msj)
+        {
+            return MessageBox(variables.hWnd, msj.c_str(), "Pregunta...", MB_OKCANCEL) == IDOK;
+        }
+
+        bool GraficosAPI::muestraPregunta(const std::string &msj, const std::string &titulo)
+        {
+            return MessageBox(variables.hWnd, msj.c_str(), titulo.c_str(), MB_OKCANCEL) == IDOK;
+        }
+
+        void GraficosAPI::limpiaVentana()
+        {
+            RECT R;
+            SetRect(&R, 0, 0, variables.iWidth, variables.iHeight);
+            HBRUSH hBrush = CreateSolidBrush(variables._back_color);
+            FillRect(variables.hDCMem, &R, hBrush);
+            DeleteObject(hBrush);
+        }
+
+        void GraficosAPI::actualizaVentana()
+        {
+            RedrawWindow(variables.hWnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
+        }
+
+        void GraficosAPI::punto(int x, int y)
+        {
+            SetPixel(variables.hDCMem, x, y, variables._color);
+        }
+
+        void GraficosAPI::linea(int x1, int y1, int x2, int y2)
+        {
+            BeginPath(variables.hDCMem);
+            MoveToEx(variables.hDCMem, x1, y1, NULL);
+            LineTo(variables.hDCMem, x2, y2);
+            EndPath(variables.hDCMem);
+            HPEN hPen = CreatePen(PS_SOLID, 1, variables._color);
+            SelectObject(variables.hDCMem, hPen);
+            StrokePath(variables.hDCMem);
+            DeleteObject(hPen);
+        }
+
+        void GraficosAPI::rectangulo(int x1, int y1, int x2, int y2)
+        {
+            _rect(x1, y1, x2, y2, false);
+        }
+
+        void GraficosAPI::rectanguloRelleno(int x1, int y1, int x2, int y2)
+        {
+            _rect(x1, y1, x2, y2, true);
+        }
+
+        void GraficosAPI::circulo(int x, int y, int radio)
+        {
+            _circ(x, y, radio, false);
+        }
+
+        void GraficosAPI::circuloRelleno(int x, int y, int radio)
+        {
+            _circ(x, y, radio, true);
+        }
+
+        void GraficosAPI::texto(int x, int y, const std::string &texto)
+        {
+            SetTextColor(variables.hDCMem, variables._color);
+            TextOut(variables.hDCMem, x, y, texto.c_str(), texto.size());
+        }
+
+        void GraficosAPI::texto(int x, int y, const std::string &texto, int tamanioFuente, const std::string &fuente,
+                                bool italica, bool negrita, bool subrayada)
+        {
+            HFONT hf, hforiginal;
+            hf = CreateFont(tamanioFuente, 0, 0, 0, (negrita ? FW_BOLD : FW_NORMAL), italica, subrayada, 0, 0, 0, 0, 0, 0, fuente.c_str());
+            hforiginal = (HFONT)SelectObject(variables.hDCMem, hf);
+            SetTextColor(variables.hDCMem, variables._color);
+            TextOut(variables.hDCMem, x, y, texto.c_str(), texto.size());
+            SelectObject(variables.hDCMem, hforiginal);
+            DeleteObject(hf);
+        }
+
+        void GraficosAPI::muestraImagen(int x, int y, Imagen &imagen)
+        {
+            _renderImage(x, y, imagen.ancho(), imagen.alto(), imagen);
+        }
+
+        void GraficosAPI::muestraImagen(int x, int y, Imagen *imagen)
+        {
+            _renderImage(x, y, imagen->ancho(), imagen->alto(), *imagen);
+        }
+
+        void GraficosAPI::muestraImagen(int x, int y, int ancho, int alto, Imagen &imagen)
+        {
+            _renderImage(x, y, ancho, alto, imagen);
+        }
+
+        void GraficosAPI::muestraImagen(int x, int y, int ancho, int alto, Imagen *imagen)
+        {
+            _renderImage(x, y, ancho, alto, *imagen);
+        }
+
+        void GraficosAPI::color(int c)
+        {
+            if (c >= 0 && c <= 7)
+                variables._color = variables._colores[c];
+            else
+                variables._color = variables._colores[0];
+        }
+
+        void GraficosAPI::color(UINT8 r, UINT8 g, UINT8 b)
+        {
+            variables._color = RGB(r, g, b);
+        }
+
+        void GraficosAPI::colorFondo(int c)
+        {
+            if (c >= 0 && c <= 7)
+                variables._back_color = variables._colores[c];
+            else
+                variables._back_color = variables._colores[0];
+        }
+
+        void GraficosAPI::colorFondo(UINT8 r, UINT8 g, UINT8 b)
+        {
+            variables._back_color = RGB(r, g, b);
+        }
+
+        int GraficosAPI::ancho()
+        {
+            return variables.iWidth;
+        }
+
+        int GraficosAPI::alto()
+        {
+            return variables.iHeight;
+        }
+
+        void GraficosAPI::tamanio(int ancho, int alto)
+        {
+            variables.iWidth = ancho;
+            variables.iHeight = alto;
+            int w, h;
+            int xPos;
+            int yPos;
+
+            frame_real(variables.iWidth, variables.iHeight, w, h);
+
+            // Centra la ventana
+            xPos = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
+            yPos = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
+
+            SetWindowPos(variables.hWnd, HWND_TOP, xPos, yPos, w, h, SWP_FRAMECHANGED);
+            newMemDC(w, h);
+        }
+
+        void GraficosAPI::pantallaCompleta(bool fullscreenOn)
+        {
+            DWORD dwStyle = GetWindowLong(variables.hWnd, GWL_STYLE);
+            if (fullscreenOn && !variables._fullscreen)
+            {
+                MONITORINFO mi = {sizeof(mi)};
+                if (GetWindowPlacement(variables.hWnd, &variables.g_wpPrev) &&
+                    GetMonitorInfo(MonitorFromWindow(variables.hWnd, MONITOR_DEFAULTTOPRIMARY), &mi))
+                {
+                    SetWindowLong(variables.hWnd, GWL_STYLE,
+                                  dwStyle & ~WS_OVERLAPPEDWINDOW);
+                    SetWindowPos(variables.hWnd, HWND_TOP,
+                                 mi.rcMonitor.left, mi.rcMonitor.top,
+                                 mi.rcMonitor.right - mi.rcMonitor.left,
+                                 mi.rcMonitor.bottom - mi.rcMonitor.top,
+                                 SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+                    variables.iWidthPrev = variables.iWidth;
+                    variables.iHeightPrev = variables.iHeight;
+                    variables.iWidth = mi.rcMonitor.right - mi.rcMonitor.left;
+                    variables.iHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
+                    variables._fullscreen = true;
+                    limpiaVentana();
+                    actualizaVentana();
+                }
+            }
+            else if (!fullscreenOn && variables._fullscreen)
             {
                 SetWindowLong(variables.hWnd, GWL_STYLE,
-                              dwStyle & ~WS_OVERLAPPEDWINDOW);
-                SetWindowPos(variables.hWnd, HWND_TOP,
-                             mi.rcMonitor.left, mi.rcMonitor.top,
-                             mi.rcMonitor.right - mi.rcMonitor.left,
-                             mi.rcMonitor.bottom - mi.rcMonitor.top,
-                             SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
-                variables.iWidthPrev = variables.iWidth;
-                variables.iHeightPrev = variables.iHeight;
-                variables.iWidth = mi.rcMonitor.right - mi.rcMonitor.left;
-                variables.iHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
-                variables._fullscreen = true;
+                              dwStyle | WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX);
+                SetWindowPlacement(variables.hWnd, &variables.g_wpPrev);
+                variables.iWidth = variables.iWidthPrev;
+                variables.iHeight = variables.iHeightPrev;
+                variables._fullscreen = false;
+                tamanio(variables.iWidth, variables.iHeight);
                 limpiaVentana();
                 actualizaVentana();
             }
         }
-        else if (!fullscreenOn && variables._fullscreen)
-        {
-            SetWindowLong(variables.hWnd, GWL_STYLE,
-                          dwStyle | WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX);
-            SetWindowPlacement(variables.hWnd, &variables.g_wpPrev);
-            variables.iWidth = variables.iWidthPrev;
-            variables.iHeight = variables.iHeightPrev;
-            variables._fullscreen = false;
-            tamanio(variables.iWidth, variables.iHeight);
-            limpiaVentana();
-            actualizaVentana();
-        }
-    }
 
-    void GraficosAPI::cierra()
-    {
-        PostMessage(variables.hWnd, WM_CLOSE, 0, 0);
-    }
-
-    void GraficosAPI::titulo(const std::string &titulo)
-    {
-        SetWindowTextA(variables.hWnd, titulo.c_str());
-    }
-
-    void GraficosAPI::imprimeEnConsola(const std::string &message)
-    {
-        HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (stdOut == NULL || stdOut == INVALID_HANDLE_VALUE)
+        void GraficosAPI::cierra()
         {
-            AllocConsole();
-            stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+            PostMessage(variables.hWnd, WM_CLOSE, 0, 0);
         }
-        if (stdOut != NULL && stdOut != INVALID_HANDLE_VALUE)
+
+        void GraficosAPI::titulo(const std::string &titulo)
         {
-            DWORD written = 0;
-            WriteConsoleA(stdOut, message.c_str(), message.size(), &written, NULL);
+            SetWindowTextA(variables.hWnd, titulo.c_str());
         }
-    }
+
+        void GraficosAPI::imprimeEnConsola(const std::string &message)
+        {
+            HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+            if (stdOut == NULL || stdOut == INVALID_HANDLE_VALUE)
+            {
+                AllocConsole();
+                stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+            }
+            if (stdOut != NULL && stdOut != INVALID_HANDLE_VALUE)
+            {
+                DWORD written = 0;
+                WriteConsoleA(stdOut, message.c_str(), message.size(), &written, NULL);
+            }
+        }
 #pragma endregion
 
 #pragma region GraficosException class
 
-    GraficosException::GraficosException(const std::string &msg) : mensaje(msg) {}
+        GraficosException::GraficosException(const std::string &msg) : mensaje(msg) {}
 
-    const char *GraficosException::what() const throw()
-    {
-        return mensaje.c_str();
-    }
+        const char *GraficosException::what() const throw()
+        {
+            return mensaje.c_str();
+        }
 
 #pragma endregion
+    }
 
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////
 
 #else
 

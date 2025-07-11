@@ -59,11 +59,14 @@ int main()
             x = ventana.ancho() - hongo->ancho();
 
         ventana.limpiaVentana();
-        ventana.muestraImagen(0, 0, ventana.ancho(), ventana.alto(), fondo);
+        //ventana.muestraImagen(0, 0, ventana.ancho(), ventana.alto(), fondo);
+        ventana.muestraImagen(0, 0, fondo);
         ventana.color(COLORES.ROJO);
         ventana.texto(20, 20, "Presione ESC para salir", 50, "Arial", true, true, true);
         ventana.texto(50, 150, "Hola");
 
+        ventana.color(COLORES.AZUL);
+        ventana.rectanguloRelleno(100,150, 200, 250);
         // Imagen TEST
         ventana.muestraImagen(x, y, hongo);
 
@@ -99,7 +102,7 @@ int main()
             d_presionada = false;
         }
 
-        ventana.imprimeEnConsola("X=" + to_string(x) + ", Y=" + to_string(y) + "\n");
+        //ventana.imprimeEnConsola("X=" + to_string(x) + ", Y=" + to_string(y) + "\n");
         ventana.espera(1);
     }
 

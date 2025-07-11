@@ -21,7 +21,7 @@
 #ifndef _GRAFICOS_HPP_
 #define _GRAFICOS_HPP_
 
-#define _GRAFICOS_VERSION_ "Graficos 0.3.0"
+#define _GRAFICOS_VERSION_ "Graficos 0.3.2"
 
 #include <iostream>
 #include <windows.h>
@@ -114,6 +114,8 @@ namespace graficos
         int _alto;
         HGDIOBJ _hBitmap;
         HGDIOBJ _hBitmapMask;
+        HDC _hdcimg;
+        HDC _hdcimg_mask;
         friend void _renderImage(int x, int y, int w, int h, graficos::Imagen &imagen);
 
     public:
