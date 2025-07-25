@@ -21,7 +21,7 @@
 #ifndef _GRAFICOS_HPP_
 #define _GRAFICOS_HPP_
 
-#define _GRAFICOS_VERSION_ "Graficos 0.3.2"
+#define _GRAFICOS_VERSION_ "Graficos 0.3.3"
 
 #include <iostream>
 #include <windows.h>

@@ -9,7 +9,7 @@ int main()
     bool on = false;
     bool i_presionada = false;
     bool d_presionada = false;
-    int x = 150, y = 150;
+    int x = 150, y = 150, rx = 0, ry = 0;
     char msj[100];
     Imagen *hongo = ventana.creaImagenConMascara("hongoNoMask.bmp", "hongomask.bmp");
     //Imagen *hongo = ventana.creaImagen("hongoNoMask.bmp");
@@ -29,6 +29,7 @@ int main()
     t = ventana.teclaPresionada();
     while (t != TECLAS.ESCAPE)
     {
+        ventana.raton(&rx, &ry);
         y += aceleracion;
         aceleracion += GRAVITY;
         if (y + ventana.altoImagen(hongo) > ventana.altoVentana())
@@ -56,7 +57,7 @@ int main()
 
         ventana.rectanguloRelleno(100,300,200,400);
 
-        ventana.circuloRelleno(100,100,10);
+        ventana.circuloRelleno(rx,ry,10);
 
         // Imagen TEST
         ventana.muestraImagen(x, y, hongo);

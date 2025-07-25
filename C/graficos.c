@@ -684,13 +684,13 @@ static void _circ(int x, int y, int radio, bool fill)
     {
         HBRUSH brush = CreateSolidBrush(_color);
         SelectObject(hDCMem, brush);
-        Ellipse(hDCMem, x, y, x + radio + radio, y + radio + radio);
+        Ellipse(hDCMem, x - radio, y - radio, x + radio, y + radio);
         DeleteObject(brush);
     }
     else
     {
         SelectObject(hDCMem, GetStockObject(NULL_BRUSH));
-        Ellipse(hDCMem, x, y, x + radio + radio, y + radio + radio);
+        Ellipse(hDCMem, x - radio, y - radio, x + radio, y + radio);
     }
     SelectObject(hDCMem, orig);
     DeleteObject(hPen);
