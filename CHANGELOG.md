@@ -8,6 +8,10 @@ Los cambios principales hechos al proyecto se escribiran aqui.
 
 - [C/C++] Se corrige un problema con las coordenadas de la funcion `circulo` y `circuloRelleno`.
 
+### Cambiado
+
+- [C/C++] Se cambia la gestion de colas para el manejo de las teclas soltadas.
+
 ## [0.3.2] - 2025-07-10
 
 ### Corregido

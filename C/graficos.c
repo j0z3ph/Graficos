@@ -548,12 +548,14 @@ int teclaPresionada()
 
 int teclaSoltada()
 {
-    queue_clear(&keyDownQueue);
-
     if (queue_empty(&keyUpQueue))
         return TECLAS.NINGUNA;
 
-    return queue_pop(&keyUpQueue);
+    int key = queue_pop(&keyUpQueue);
+
+    while(queue_front(&keyDownQueue) == key) queue_pop(&keyDownQueue);
+
+    return key;
 }
 
 bool raton(int *x, int *y)

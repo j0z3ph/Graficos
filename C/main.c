@@ -45,8 +45,8 @@ int main()
 
         ventana.limpiaVentana();
         //ventana.texto(550, 150, "Hola");
-        ventana.muestraImagenEscalada(0, 0, ventana.anchoVentana(), ventana.altoVentana(), fondo);
-        //ventana.muestraImagen(0, 0, fondo);
+        //ventana.muestraImagenEscalada(0, 0, ventana.anchoVentana(), ventana.altoVentana(), fondo);
+        ventana.muestraImagen(0, 0, fondo);
         //ventana.muestraImagen(0, 0, fondo);
         
         ventana.color(COLORES.ROJO);

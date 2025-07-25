@@ -558,14 +558,13 @@ namespace graficos
 
         int GraficosAPI::teclaSoltada()
         {
-            while (!variables._teclas.empty())
-                variables._teclas.pop();
-
             if (variables._teclasUp.empty())
                 return TECLAS.NINGUNA;
 
             int ret = variables._teclasUp.front();
             variables._teclasUp.pop();
+
+            while(!variables._teclas.empty() && variables._teclas.front() == ret) variables._teclas.pop();
 
             return ret;
         }
